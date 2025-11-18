@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "dev-tools": {
+      "disabled": false,
+      "timeout": 600,
+      "type": "stdio",
+      "command": "/Users/samm/go/bin/mcp-devtools",
+      "env": {
+        "DISABLED_FUNCTIONS": "",
+        "ENABLE_EXTRA_FUNCTIONS": "security",
+        "BRAVE_API_KEY": "redacted"
+      }
+    }
+  }
+}

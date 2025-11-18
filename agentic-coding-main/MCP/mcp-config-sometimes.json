@@ -1,0 +1,89 @@
+{
+  "mcpServers": {
+    "chrome-browser-use": {
+      "disabled": true,
+      "timeout": 60,
+      "command": "npx",
+      "args": [
+        "-y",
+        "@browsermcp/mcp@latest"
+      ],
+      "transportType": "stdio"
+    },
+    "chrome-browser-control": {
+      "command": "npx",
+      "disabled": true,
+      "args": ["-y", "@browsermcp/mcp@latest"]
+    },
+    "markdownify": {
+      "autoApprove": [
+        "get-markdown-file",
+        "image-to-markdown",
+        "pdf-to-markdown",
+        "pptx-to-markdown",
+        "webpage-to-markdown",
+        "xlsx-to-markdown",
+        "youtube-to-markdown",
+        "audio-to-markdown",
+        "bing-search-to-markdown",
+        "docx-to-markdown"
+      ],
+      "disabled": true,
+      "timeout": 300,
+      "command": "node",
+      "args": [
+        "/PATH/TO/markdownify-mcp/dist/index.js"
+      ],
+      "env": {
+        "UV_PATH": "/PATH/TO/bin/uv"
+      },
+      "transportType": "stdio"
+    },
+    "@21st-dev/magic": {
+      "timeout": 60,
+      "command": "npx",
+      "args": [
+        "-y",
+        "@21st-dev/magic@latest",
+        "API_KEY=\"REDACTED\""
+      ],
+      "transportType": "stdio"
+    },
+    "memory-bank": {
+      "autoApprove": [
+        "memory_bank_read",
+        "memory_bank_write",
+        "memory_bank_update",
+        "list_projects",
+        "list_project_files"
+      ],
+      "disabled": true,
+      "timeout": 60,
+      "command": "npx",
+      "args": [
+        "-y",
+        "@allpepper/memory-bank-mcp"
+      ],
+      "env": {
+        "MEMORY_BANK_ROOT": "/PATH/TO/mcp-memory-bank-data"
+      },
+      "transportType": "stdio"
+    },
+    "figma-mcp": {
+      "autoApprove": [
+        "get_figma_data",
+        "download_figma_images"
+      ],
+      "disabled": true,
+      "timeout": 60,
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "figma-developer-mcp",
+        "--figma-api-key=your-figma-api-key",
+        "--stdio"
+      ]
+    }
+  }
+}
