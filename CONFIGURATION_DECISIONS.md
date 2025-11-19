@@ -109,19 +109,24 @@
 - Skills are higher priority (immediate productivity gain)
 - Configuration can be added incrementally without breaking skills
 
-**Deferred Items (14 todos):**
+**Phase 2 Items (7 todos - Configuration Focus):**
 1. Configuration systems deep dive
 2. Cost optimization comparison
 3. Quality agents evaluation
 4. Global rules crafting
-5. Alfred SuperAgent research
-6. Mise build system research
-7. Workflow commands comparison
-8. Hooks systems testing
-9. Hybrid configuration crafting
-10-14. Skill verification and custom skill creation
+5. Workflow commands comparison
+6. Hooks systems testing
+7. Hybrid configuration crafting
 
-**Impact:** Phase 1 focuses on skills only, Phase 2 optimizes configuration
+**Phase 3 Items (7 todos - Advanced Tools & Custom Skills):**
+1. Alfred SuperAgent research
+2. Mise build system research
+3-7. Skill verification and custom skill creation
+
+**Impact:**
+- Phase 1 focuses on skills only
+- Phase 2 optimizes configuration systems
+- Phase 3 explores advanced tools and creates custom skills
 
 ---
 

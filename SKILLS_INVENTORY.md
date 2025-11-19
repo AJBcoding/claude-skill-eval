@@ -171,25 +171,29 @@
 
 ---
 
-## Phase 2 - Deferred Items (14 todos)
+## Phase 2 - Configuration Systems Focus (7 todos)
 
-### Configuration Systems Deep Dive
+### Configuration Systems Evaluation & Integration
 1. Evaluate agents, hooks, rules from all 3 frameworks
 2. Compare cost-optimization: carlo's Haiku (40-60%) vs moai delegation (80-85%)
 3. Evaluate quality agents: docs-quality-reviewer, code-simplifier, documentation-generator
 4. Review global rules: Craft hybrid without Australian English
-5. Research Alfred SuperAgent value-add
-6. Research Mise build system value-add
-7. Evaluate workflow command systems
-8. Test hooks systems
-9. Craft hybrid configuration
+5. Evaluate workflow command systems
+6. Test hooks systems
+7. Craft hybrid configuration
+
+## Phase 3 - Advanced Tools & Custom Skills (7 todos)
+
+### Advanced Tool Research
+1. Research Alfred SuperAgent value-add
+2. Research Mise build system value-add
 
 ### Skill Verification & Creation
-10. Verify if moai has pytest-specific skills
-11. Verify if moai has data-viz skills (Plotly/Recharts)
-12. Create custom NLP/ML skill (BERTopic, embeddings, topic modeling)
-13. Create pytest-patterns skill (fixtures, SQLAlchemy testing, FastAPI overrides)
-14. Create plotly-recharts-dashboards skill
+3. Verify if moai has pytest-specific skills
+4. Verify if moai has data-viz skills (Plotly/Recharts)
+5. Create custom NLP/ML skill (BERTopic, embeddings, topic modeling)
+6. Create pytest-patterns skill (fixtures, SQLAlchemy testing, FastAPI overrides)
+7. Create plotly-recharts-dashboards skill
 
 ---
 

@@ -151,31 +151,35 @@ This session completed Phase 1 deployment by merging PR #4 and extending the cur
 
 ---
 
-## Phase 2 Status
+## Phase 2 Status (Reorganized 2025-11-18)
 
-**14 todos documented and ready for execution:**
+**Phase 2 - Configuration Systems Focus (7 todos):**
 
-### Configuration Systems (9 items)
+### Configuration Systems Evaluation & Integration
 1. Evaluate agents, hooks, rules from all 3 frameworks
 2. Compare cost optimization: carlo Haiku (40-60%) vs moai delegation (80-85%)
 3. Evaluate quality agents: docs-quality-reviewer, code-simplifier, documentation-generator
 4. Review global rules: Craft hybrid without Australian English
-5. Research Alfred SuperAgent value-add
-6. Research Mise build system value-add
-7. Evaluate workflow command systems
-8. Test hooks systems
-9. Craft hybrid configuration
+5. Evaluate workflow command systems
+6. Test hooks systems
+7. Craft hybrid configuration
 
-### Custom Skills (5 items)
-10. Verify moai pytest-specific skills
-11. Verify moai data-viz skills (Plotly/Recharts)
-12. Create custom NLP/ML skill (BERTopic, embeddings, topic modeling)
-13. Create pytest-patterns skill (fixtures, SQLAlchemy testing, FastAPI overrides)
-14. Create plotly-recharts-dashboards skill
+**Phase 3 - Advanced Tools & Custom Skills (7 todos):**
 
-**Phase 2 documentation locations:**
-- SKILLS_INVENTORY.md:174-193
-- CONFIGURATION_DECISIONS.md:100-124
+### Advanced Tool Research
+1. Research Alfred SuperAgent value-add
+2. Research Mise build system value-add
+
+### Skill Verification & Creation
+3. Verify moai pytest-specific skills
+4. Verify moai data-viz skills (Plotly/Recharts)
+5. Create custom NLP/ML skill (BERTopic, embeddings, topic modeling)
+6. Create pytest-patterns skill (fixtures, SQLAlchemy testing, FastAPI overrides)
+7. Create plotly-recharts-dashboards skill
+
+**Documentation locations (updated):**
+- SKILLS_INVENTORY.md:174-196
+- CONFIGURATION_DECISIONS.md:112-129
 - Design document:328-344
 
 ---
@@ -198,16 +202,19 @@ This session completed Phase 1 deployment by merging PR #4 and extending the cur
 
 ### For Next Session
 
-**If proceeding to Phase 2:**
-1. Review Phase 2 todos in SKILLS_INVENTORY.md:174-193
-2. Start with configuration systems evaluation (research required)
+**If proceeding to Phase 2 (Configuration Systems):**
+1. Review Phase 2 todos in SKILLS_INVENTORY.md:174-183
+2. Focus on configuration systems evaluation and integration
 3. Consider 2-4 week usage period first to identify pain points
 4. Measure token usage/costs before optimization research
 
-**If creating custom skills:**
-1. NLP/ML skill for knowledge-extraction-suite project
-2. pytest-patterns for test suite patterns
-3. Plotly/Recharts for data visualization needs
+**If proceeding to Phase 3 (Advanced Tools & Custom Skills):**
+1. Review Phase 3 todos in SKILLS_INVENTORY.md:185-196
+2. Research Alfred SuperAgent and Mise build system
+3. Create custom skills for:
+   - NLP/ML (BERTopic, embeddings, topic modeling)
+   - pytest-patterns (fixtures, SQLAlchemy testing, FastAPI overrides)
+   - Plotly/Recharts data visualization
 
 **If syncing skills to other projects:**
 - Automatic: Will happen on next `cd` to each project (via hooks)
@@ -253,8 +260,12 @@ This session completed Phase 1 deployment by merging PR #4 and extending the cur
 ✅ **Global Skills: DEPLOYED**
 ✅ **Sync Tool: INTEGRATED**
 ✅ **Handoff: DOCUMENTED**
+✅ **Phases Reorganized:** Phase 2 (Configuration) & Phase 3 (Advanced Tools & Skills)
 
-**Ready for:** Phase 2 evaluation or production use with Phase 1 configuration
+**Ready for:**
+- Phase 2: Configuration systems evaluation and integration (7 todos)
+- Phase 3: Advanced tools research and custom skill creation (7 todos)
+- Production use with Phase 1 configuration
 
 ---
 
