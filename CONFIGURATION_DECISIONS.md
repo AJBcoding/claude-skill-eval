@@ -765,8 +765,13 @@ export CLAUDE_SKIP_AGENTS=true  # Entire session
 - Configuration Patterns: `analysis/config-patterns.md`
 - Session Handoff: `docs/SESSION_2025-11-18_phase2-planning.md`
 - Phase 2 README: `PHASE2_README.md`
-- Phase 2 Handoff: `docs/phase2-handoff.md` (to be created)
-- Quick Reference: `docs/PHASE2_QUICK_REFERENCE.md` (to be created)
+- Phase 2 Handoff: `docs/phase2-handoff.md`
+- Quick Reference: `docs/PHASE2_QUICK_REFERENCE.md`
+
+**Example Sessions:**
+- Debug Agent Example: `docs/examples/debug-agent-session.md`
+- Consistency Agent Example: `docs/examples/consistency-agent-session.md`
+- Quality Agent Example: `docs/examples/quality-agent-session.md`
 
 **Implementation Evidence:**
 - Agents: `.claude/agents/{debug,consistency,quality}-agent/`
