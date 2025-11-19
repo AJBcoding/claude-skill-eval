@@ -1,0 +1,313 @@
+---
+# Post-Implementation Hook
+# Triggers: After Edit/Write operations complete
+# Purpose: Activate quality-agent to review against quality checklist
+
+name: post-implementation
+version: "1.0.0"
+enabled: true
+priority: high
+
+# Hook Metadata
+description: "Trigger quality-agent after code changes to review against quality checklist. Ensures all quality gates pass before marking work complete."
+
+# Trigger Configuration
+trigger:
+  events:
+    - "after:Edit"
+    - "after:Write"
+    - "after:MultiEdit"
+    - "before:git:commit"
+    - "on:completion_signal"
+
+  # Conditions for activation
+  conditions:
+    - type: file_type
+      pattern: "\\.(js|ts|tsx|jsx|py|go|java|rb|php|rs|swift|c|cpp|h|hpp)$"
+      description: "Only trigger for code files"
+
+    - type: change_significance
+      min_lines_changed: 10
+      description: "Skip for trivial changes (< 10 lines)"
+
+    - type: user_signal
+      pattern: "(done|complete|finished|ready|commit|ship|deploy|merge)"
+      description: "Activate when user signals completion"
+
+# Agent Configuration
+agent: quality-agent
+agent_mode: review  # Comprehensive review mode
+
+# Quality Review Checklist
+checklist:
+  categories:
+    - name: test_coverage
+      weight: critical
+      checks:
+        - id: unit_tests_present
+          description: "All new functions/methods have unit tests"
+          required: true
+
+        - id: integration_tests
+          description: "API endpoints and workflows tested"
+          required: true
+
+        - id: edge_cases_covered
+          description: "Boundary conditions and error paths covered"
+          required: true
+
+        - id: tests_pass
+          description: "All tests pass"
+          required: true
+          blocking: true
+
+    - name: documentation
+      weight: high
+      checks:
+        - id: code_comments
+          description: "Complex logic is explained"
+          required: false
+
+        - id: function_documentation
+          description: "Parameters, return values, exceptions documented"
+          required: true
+
+        - id: readme_updated
+          description: "User-facing changes reflected in docs"
+          required: true
+
+        - id: api_documentation
+          description: "Endpoints, schemas, examples documented"
+          required: true
+
+    - name: error_handling
+      weight: critical
+      checks:
+        - id: input_validation
+          description: "All inputs validated before use"
+          required: true
+          blocking: true
+
+        - id: error_catching
+          description: "Exceptions caught and handled appropriately"
+          required: true
+
+        - id: error_messages
+          description: "Clear, actionable error messages"
+          required: true
+
+        - id: graceful_degradation
+          description: "Failures don't crash the system"
+          required: true
+          blocking: true
+
+    - name: performance
+      weight: medium
+      checks:
+        - id: algorithm_efficiency
+          description: "No obvious performance bottlenecks"
+          required: true
+
+        - id: database_queries
+          description: "Efficient queries, proper indexing"
+          required: true
+
+        - id: memory_management
+          description: "No memory leaks or excessive allocations"
+          required: false
+
+        - id: caching_appropriate
+          description: "Expensive operations cached where appropriate"
+          required: false
+
+    - name: security
+      weight: critical
+      checks:
+        - id: input_sanitization
+          description: "Protection against injection attacks"
+          required: true
+          blocking: true
+
+        - id: authentication_authorization
+          description: "Proper access controls"
+          required: true
+          blocking: true
+
+        - id: no_hardcoded_secrets
+          description: "No hardcoded secrets or credentials"
+          required: true
+          blocking: true
+
+        - id: dependency_security
+          description: "No known vulnerabilities in dependencies"
+          required: true
+
+    - name: code_quality
+      weight: high
+      checks:
+        - id: readability
+          description: "Clear variable names, logical structure"
+          required: true
+
+        - id: dry_principle
+          description: "No unnecessary code duplication"
+          required: true
+
+        - id: solid_principles
+          description: "Well-designed, maintainable code"
+          required: false
+
+        - id: naming_conventions
+          description: "Follows project conventions"
+          required: true
+
+    - name: integration
+      weight: high
+      checks:
+        - id: no_breaking_changes
+          description: "API compatibility maintained"
+          required: true
+          blocking: true
+
+        - id: database_migrations
+          description: "Backward compatible migrations"
+          required: true
+
+        - id: builds_cleanly
+          description: "Successfully builds without warnings"
+          required: true
+
+# Workflow Steps
+workflow:
+  steps:
+    - name: analyze_changes
+      description: "Review all code changes"
+      timeout: 30
+
+    - name: run_checklist
+      description: "Execute quality checklist"
+      timeout: 120
+
+    - name: generate_report
+      description: "Create quality review report"
+      timeout: 15
+      output_format: "markdown"
+
+    - name: present_findings
+      description: "Present findings to user"
+      timeout: 10
+      requires_acknowledgment: true
+
+# Exit Codes
+exit_codes:
+  0: "all_passed"        # All quality gates passed
+  1: "warnings"          # Non-blocking issues found
+  2: "blocking_issues"   # Critical issues must be resolved
+  3: "security_issues"   # Security vulnerabilities found (blocks commit)
+  130: "user_override"   # User chose to proceed despite warnings
+
+# Bypass Mechanisms
+bypass:
+  # Allow bypass for specific scenarios
+  conditions:
+    - flag: "--skip-quality-check"
+      description: "Skip this hook with explicit flag (not recommended)"
+
+    - flag: "--minor-change"
+      description: "Bypass for explicitly minor changes (docs, comments)"
+
+    - file_pattern: "**/test/**"
+      description: "Relaxed standards for test files"
+
+    - change_type: "documentation-only"
+      description: "Skip for pure documentation changes"
+
+# Performance Settings
+performance:
+  max_execution_time: 120  # 2 minutes
+  parallel_checks: true
+  cache_results: false  # Always run fresh checks
+
+  # Auto-run tools if available
+  auto_run:
+    linters: true
+    formatters: false  # Don't auto-format
+    tests: true
+    coverage: true
+
+# Report Configuration
+report:
+  format: markdown
+  output_file: ".claude/reports/quality-review-{timestamp}.md"
+  include_in_output: true
+
+  sections:
+    - summary: "Overall quality score and pass/fail status"
+    - blocking_issues: "Critical issues that must be resolved"
+    - warnings: "Non-blocking issues to address"
+    - passed_checks: "Successful quality checks"
+    - recommendations: "Suggested improvements"
+    - metrics: "Code metrics (coverage, complexity, etc.)"
+
+# Feedback Configuration
+feedback:
+  on_all_passed: "✅ All quality gates passed! Code is ready to commit."
+  on_warnings: "⚠ Quality review complete with {warning_count} warnings. Review recommended but not blocking."
+  on_blocking: "❌ Quality review failed. {blocking_count} critical issues must be resolved before proceeding."
+  on_security: "🔒 SECURITY ISSUE DETECTED! Cannot proceed until security vulnerabilities are resolved."
+  on_error: "⚠ Quality check failed to run. Please review manually."
+
+# Integration Settings
+integration:
+  compatible_with_superpowers: true
+  enhances_workflow: true
+  blocks_workflow: false  # Warnings don't block, only critical issues
+
+  # Optional integration with CI/CD
+  ci_integration:
+    enabled: false
+    update_status_checks: false
+
+# Auto-fix Capabilities
+auto_fix:
+  enabled: true
+  safe_fixes_only: true
+
+  # What can be auto-fixed
+  capabilities:
+    - formatting: true       # Auto-format code
+    - import_sorting: true   # Sort imports
+    - trailing_whitespace: true
+    - missing_docs: false    # Don't auto-generate docs
+    - add_tests: false       # Don't auto-generate tests
+
+# Examples of Hook in Action
+examples:
+  - scenario: "Committing new payment feature"
+    trigger: "User says 'I'm done, let's commit it'"
+    action: "Run quality checklist, find hardcoded API key (CRITICAL), missing API docs (WARNING)"
+    outcome: "Blocks commit, user moves API key to env var, adds docs, then commits"
+
+  - scenario: "After implementing database migration"
+    trigger: "after:Write on migrations/add-user-preferences.sql"
+    action: "Check for rollback plan, memory issues, documentation"
+    outcome: "Suggests batch processing for large datasets, requests rollback script"
+
+  - scenario: "Post-implementation auto-review"
+    trigger: "after:Edit on models/Product.js"
+    action: "Quick review finds missing index on email field"
+    outcome: "Suggests performance improvement, user adds index"
+
+# Quality Metrics Tracking
+metrics:
+  enabled: true
+  track:
+    - quality_gate_pass_rate: "Percentage of first-time passes"
+    - issues_detected: "Count of issues caught before commit"
+    - avg_test_coverage: "Average test coverage of reviewed code"
+    - time_to_review: "How long quality reviews take"
+    - most_common_issues: "Track patterns of issues"
+
+  output_file: ".claude/metrics/quality-metrics.json"
+
+---

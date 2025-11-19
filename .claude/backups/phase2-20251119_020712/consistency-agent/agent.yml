@@ -1,0 +1,35 @@
+---
+name: consistency-agent
+description: "Enforces pattern consistency by detecting similar implementations and suggesting reuse. Activates before creating new features to ensure architectural coherence."
+model: haiku
+color: blue
+tools:
+  - Read
+  - Grep
+  - Glob
+activation:
+  keywords:
+    - implement
+    - add
+    - create
+    - build
+    - feature
+    - write
+    - develop
+    - make
+    - generate
+  triggers:
+    - "Before Edit/Write operations"
+    - "When creating new components, functions, or modules"
+    - "User mentions 'like the other one' or similar references"
+metadata:
+  version: "1.0.0"
+  created: "2025-11-19"
+  purpose: "Pattern matching and reuse enforcement"
+  frequency: "high"
+  cost_optimization: "Uses Haiku model for fast, cost-effective pattern matching"
+performance:
+  avg_execution_time_seconds: 15
+  context_heavy: false
+  max_file_reads: 10
+---

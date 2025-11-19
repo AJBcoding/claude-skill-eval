@@ -1,0 +1,17 @@
+---
+name: quality-agent
+description: "Comprehensive post-implementation review against quality standards - ensures code meets quality gates before marking work complete"
+tools: Read, Grep, Glob, Bash
+model: sonnet
+color: purple
+activation_keywords:
+  - done
+  - complete
+  - finished
+  - ready
+  - commit
+  - ship
+  - deploy
+  - merge
+  - review
+---

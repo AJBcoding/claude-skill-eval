@@ -1,0 +1,281 @@
+# Phase 2 Metrics Tracking Configuration
+# Created: 2025-11-19
+# Purpose: Track effectiveness of configuration systems (agents, hooks, rules)
+
+version: "1.0"
+enabled: true
+
+# Data storage location
+data_store:
+  path: ".claude/data/metrics.jsonl"
+  format: "jsonlines"  # One JSON object per line for easy parsing
+  retention_days: 90
+
+# Collection points - when metrics are captured
+collection_points:
+  - agent_activation
+  - agent_completion
+  - hook_execution
+  - error_occurrence
+  - code_change
+  - skill_activation
+  - task_completion
+
+# Metrics definitions aligned with Phase 2 success criteria
+metrics:
+
+  # Success Metric 1: 90% of bugs caught before code execution
+  bug_catch_rate:
+    description: "Percentage of bugs caught by debug-agent before execution"
+    formula: "(bugs_caught_pre_execution / total_bugs) * 100"
+    target: 90
+    unit: "percentage"
+    collection_point: "agent_completion"
+    agent: "debug-agent"
+    data_fields:
+      - bugs_caught_pre_execution
+      - bugs_found_during_execution
+      - bugs_found_post_execution
+      - total_bugs
+      - bug_severity  # critical, high, medium, low
+      - bug_type  # syntax, logic, runtime, integration
+    calculation: |
+      bugs_caught_pre_execution / (bugs_caught_pre_execution + bugs_found_during_execution + bugs_found_post_execution)
+
+  # Success Metric 2: Similar tasks follow identical patterns
+  pattern_adherence_rate:
+    description: "Percentage of similar tasks that follow established patterns"
+    formula: "(tasks_following_pattern / tasks_with_applicable_pattern) * 100"
+    target: 90
+    unit: "percentage"
+    collection_point: "agent_completion"
+    agent: "consistency-agent"
+    data_fields:
+      - tasks_with_applicable_pattern
+      - tasks_following_pattern
+      - pattern_type  # api-endpoint, react-component, database-model, etc.
+      - pattern_deviation_reason  # intentional, oversight, no_match
+      - pattern_suggestions_made
+      - pattern_suggestions_accepted
+    calculation: |
+      tasks_following_pattern / tasks_with_applicable_pattern
+
+  # Success Metric 3: 50% reduction in Claude redirection needed
+  redirection_frequency:
+    description: "Number of times agents redirect Claude behavior per session"
+    formula: "count(redirection_events)"
+    target: "50% reduction from baseline"
+    unit: "count"
+    collection_point: "agent_activation"
+    agent: "all"
+    data_fields:
+      - redirection_type  # methodology_enforcement, pattern_suggestion, quality_gate
+      - redirection_agent  # debug, consistency, quality
+      - redirection_severity  # nudge, strong_nudge, block
+      - redirection_accepted  # boolean
+      - baseline_redirections_per_session
+      - current_redirections_per_session
+    calculation: |
+      1 - (current_redirections_per_session / baseline_redirections_per_session)
+
+  # Success Metric 4: Debugging follows 6-step methodology consistently
+  debug_methodology_adherence:
+    description: "Percentage of debug sessions that complete all 6 steps"
+    formula: "(complete_sessions / total_debug_sessions) * 100"
+    target: 95
+    unit: "percentage"
+    collection_point: "agent_completion"
+    agent: "debug-agent"
+    data_fields:
+      - total_debug_sessions
+      - complete_sessions  # all 6 steps
+      - steps_completed  # array of step names
+      - steps_skipped  # array of step names
+      - step_quality_score  # 1-5 for each step
+      - session_duration
+      - bug_resolved  # boolean
+    steps:
+      - reproduce
+      - isolate
+      - hypothesis
+      - test
+      - fix
+      - verify
+    calculation: |
+      complete_sessions / total_debug_sessions
+
+  # Success Metric 5: Language/domain skills activated appropriately
+  skill_activation_rate:
+    description: "Percentage of appropriate skill activations"
+    formula: "(appropriate_activations / total_tasks_requiring_skills) * 100"
+    target: 85
+    unit: "percentage"
+    collection_point: "skill_activation"
+    agent: "consistency-agent"  # responsible for skill activation reminders
+    data_fields:
+      - total_tasks_requiring_skills
+      - appropriate_activations
+      - missed_activations
+      - unnecessary_activations
+      - skill_name
+      - task_type
+      - language  # python, typescript, etc.
+      - domain  # frontend, database, security
+    calculation: |
+      appropriate_activations / (appropriate_activations + missed_activations)
+
+  # Supporting Metric: Quality gate effectiveness
+  quality_gate_effectiveness:
+    description: "Issues caught by quality-agent before commit"
+    formula: "count(issues_by_severity)"
+    target: "trend upward"
+    unit: "count"
+    collection_point: "agent_completion"
+    agent: "quality-agent"
+    data_fields:
+      - issues_found
+      - issue_severity  # critical, high, medium, low
+      - issue_category  # tests, docs, error_handling, performance, security, code_quality, integration
+      - issues_resolved
+      - review_duration
+      - quality_score  # 0-100
+    categories:
+      - test_coverage
+      - documentation
+      - error_handling
+      - performance
+      - security
+      - code_quality
+      - integration
+
+  # Supporting Metric: Agent performance
+  agent_performance:
+    description: "Agent activation and completion metrics"
+    collection_point: "agent_activation"
+    agent: "all"
+    data_fields:
+      - agent_name
+      - activation_time
+      - completion_time
+      - duration
+      - trigger_type  # keyword, automatic, manual
+      - trigger_value  # specific keyword or event
+      - success  # boolean
+      - error_message
+      - tokens_used
+      - model_used
+
+  # Supporting Metric: Code change tracking
+  code_changes:
+    description: "Track code modifications relative to agent activity"
+    collection_point: "code_change"
+    data_fields:
+      - change_type  # edit, write, delete
+      - file_path
+      - lines_added
+      - lines_removed
+      - change_context  # which agent/task triggered this
+      - before_quality_review  # boolean
+      - after_quality_review  # boolean
+
+  # Supporting Metric: Hook execution
+  hook_execution:
+    description: "Track integration hook activations"
+    collection_point: "hook_execution"
+    data_fields:
+      - hook_name
+      - hook_type  # pre-implementation, post-error, post-implementation
+      - execution_time
+      - agents_triggered
+      - success
+
+# Event schema for JSON Lines format
+event_schema:
+  timestamp: "ISO 8601 datetime"
+  event_type: "string (agent_activation, agent_completion, etc.)"
+  metric_name: "string"
+  agent_name: "string (debug-agent, consistency-agent, quality-agent)"
+  session_id: "string (UUID)"
+  task_id: "string (UUID)"
+  data: "object (metric-specific fields)"
+  metadata:
+    user: "string"
+    branch: "string"
+    commit: "string (if applicable)"
+
+# Example event
+example_event:
+  timestamp: "2025-11-19T10:30:45Z"
+  event_type: "agent_completion"
+  metric_name: "debug_methodology_adherence"
+  agent_name: "debug-agent"
+  session_id: "550e8400-e29b-41d4-a716-446655440000"
+  task_id: "abc123"
+  data:
+    steps_completed: ["reproduce", "isolate", "hypothesis", "test", "fix", "verify"]
+    steps_skipped: []
+    bug_resolved: true
+    session_duration: 1200
+    bug_severity: "high"
+    bug_type: "logic"
+  metadata:
+    user: "developer"
+    branch: "feature/new-api"
+    commit: "a1b2c3d4"
+
+# Baseline measurements (to be populated)
+baseline:
+  bug_catch_rate:
+    value: 0  # Unknown - to be estimated
+    date: "2025-11-19"
+    note: "Baseline to be established through historical analysis"
+
+  pattern_adherence_rate:
+    value: 0  # Currently no automated pattern enforcement
+    date: "2025-11-19"
+    note: "Manual pattern following only"
+
+  redirection_frequency:
+    value: "TBD"  # To be estimated from experience
+    date: "2025-11-19"
+    note: "Baseline redirections per session to be measured"
+
+  debug_methodology_adherence:
+    value: 35  # Estimated 30-40%
+    date: "2025-11-19"
+    note: "Estimated from observation - often skip steps"
+
+  skill_activation_rate:
+    value: 65  # Estimated 60-70%
+    date: "2025-11-19"
+    note: "Estimated - sometimes forget to use available skills"
+
+# Reporting configuration
+reporting:
+  dashboard_path: "docs/metrics-dashboard.md"
+  update_frequency: "weekly"
+  formats:
+    - markdown_table
+    - progress_bars
+    - trend_charts
+
+  alert_thresholds:
+    bug_catch_rate_below: 80
+    pattern_adherence_below: 80
+    skill_activation_below: 75
+    debug_methodology_below: 85
+
+# Analysis configuration
+analysis:
+  script_path: "scripts/analyze-metrics.py"
+  output_path: "analysis/metrics/"
+
+  report_sections:
+    - summary_statistics
+    - trend_analysis
+    - comparison_to_baseline
+    - agent_performance
+    - recommendations
+
+  trend_window_days: 7
+  comparison_period: "week_over_week"
