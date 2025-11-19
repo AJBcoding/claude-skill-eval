@@ -1,0 +1,273 @@
+# Document Coordinator Configuration
+# Purpose: Intelligent document processing and generation
+
+name: document-coordinator
+version: 1.0.0
+description: |
+  Routes document tasks to appropriate processors based on file type.
+  Handles Word documents, spreadsheets, PDFs, and presentations
+  with automatic skill selection and batch processing support.
+
+obra_dependencies:
+  required:
+    - verification-before-completion  # Verify document contents
+  recommended:
+    - writing-plans                   # For complex documents
+    - brainstorming                   # For structure decisions
+  optional:
+    - dispatching-parallel-agents    # For batch processing
+    - subagent-driven-development    # For complex documents
+
+# Document type skills
+skills:
+  word:
+    skill: docx
+    description: "Word document creation, editing, analysis, tracked changes"
+    file_extensions:
+      - ".docx"
+      - ".doc"
+    triggers:
+      keywords:
+        - "Word document"
+        - "track changes"
+        - "heading"
+        - "table of contents"
+        - "formatting"
+      patterns:
+        - "*.docx$"
+        - "*.doc$"
+    precedence: HIGH
+    use_cases:
+      - "Create reports"
+      - "Edit documents"
+      - "Extract text"
+      - "Track changes"
+      - "Generate TOC"
+
+  excel:
+    skill: xlsx
+    description: "Spreadsheet creation with formulas, data analysis, visualization"
+    file_extensions:
+      - ".xlsx"
+      - ".xls"
+      - ".csv"
+      - ".tsv"
+    triggers:
+      keywords:
+        - "spreadsheet"
+        - "Excel"
+        - "CSV"
+        - "formula"
+        - "pivot"
+        - "chart"
+      patterns:
+        - "*.xlsx$"
+        - "*.xls$"
+        - "*.csv$"
+        - "*.tsv$"
+    precedence: HIGH
+    use_cases:
+      - "Create data tables"
+      - "Add formulas"
+      - "Generate charts"
+      - "Analyze data"
+      - "Export data"
+
+  powerpoint:
+    skill: pptx
+    description: "Presentation creation, editing, template application"
+    file_extensions:
+      - ".pptx"
+      - ".ppt"
+    triggers:
+      keywords:
+        - "presentation"
+        - "slide"
+        - "PowerPoint"
+        - "deck"
+        - "animation"
+      patterns:
+        - "*.pptx$"
+        - "*.ppt$"
+    precedence: HIGH
+    use_cases:
+      - "Create slides"
+      - "Add content"
+      - "Apply templates"
+      - "Generate decks"
+
+  pdf:
+    skill: pdf
+    description: "PDF extraction, creation, merging, form filling"
+    file_extensions:
+      - ".pdf"
+    triggers:
+      keywords:
+        - "PDF"
+        - "extract"
+        - "merge"
+        - "form"
+        - "page"
+      patterns:
+        - "*.pdf$"
+    precedence: HIGH
+    use_cases:
+      - "Extract text/tables"
+      - "Create PDFs"
+      - "Merge documents"
+      - "Fill forms"
+      - "Edit PDFs"
+
+# Document processing patterns
+patterns:
+  report_generation:
+    description: "Create comprehensive reports"
+    triggers:
+      - "generate report"
+      - "create report"
+      - "compile report"
+    flow:
+      1: "Write plan for report structure"
+      2: "Determine output format (Word, PDF, Excel)"
+      3: "Route to appropriate skill"
+      4: "Verify document completeness"
+    output_formats:
+      - "Word with formatting"
+      - "PDF for distribution"
+      - "Excel for data"
+
+  data_export:
+    description: "Export data to various formats"
+    triggers:
+      - "export data"
+      - "save to"
+      - "output"
+    flow:
+      1: "Determine export format"
+      2: "Route to xlsx or csv handler"
+      3: "Format data appropriately"
+      4: "Verify export"
+
+  document_conversion:
+    description: "Convert between document formats"
+    triggers:
+      - "convert"
+      - "from.*to"
+      - "export as"
+    flow:
+      1: "Read source format"
+      2: "Parse content"
+      3: "Route to target format skill"
+      4: "Validate conversion"
+
+  batch_processing:
+    description: "Process multiple documents"
+    triggers:
+      - "batch"
+      - "multiple"
+      - "several"
+    flow:
+      1: "Use dispatching-parallel-agents"
+      2: "Process files in parallel"
+      3: "Aggregate results"
+      4: "Validate all outputs"
+
+# File type detection rules
+detection:
+  priority:
+    1: "File extension"
+    2: "File content/headers"
+    3: "User specification"
+
+  rules:
+    - pattern: ".*\.xlsx?$"
+      skill: xlsx
+      precedence: CRITICAL  # Extensions are definitive
+    - pattern: ".*\.docx?$"
+      skill: docx
+      precedence: CRITICAL
+    - pattern: ".*\.pptx?$"
+      skill: pptx
+      precedence: CRITICAL
+    - pattern: ".*\.pdf$"
+      skill: pdf
+      precedence: CRITICAL
+    - pattern: ".*\.csv$"
+      skill: xlsx  # CSV → Excel handler
+      precedence: HIGH
+    - pattern: ".*\.tsv$"
+      skill: xlsx  # TSV → Excel handler
+      precedence: HIGH
+
+# Format-specific options
+format_options:
+  word:
+    preserve_formatting: true
+    track_changes: true
+    include_toc: true
+    language: "en-US"
+
+  excel:
+    preserve_formulas: true
+    freeze_panes: false
+    auto_adjust_width: true
+    number_format: "automatic"
+
+  powerpoint:
+    aspect_ratio: "16:9"
+    theme: "professional"
+    transitions: false
+
+  pdf:
+    compression: "standard"
+    security: "none"
+    page_size: "letter"
+
+# Integration with other coordinators
+integrations:
+  language_coordinator:
+    when: "Document contains code"
+    action: "Route code to language-coordinator"
+
+  data_analysis:
+    when: "Document contains data analysis"
+    action: "Coordinate with data-analysis-coordinator"
+
+  quality_agent:
+    trigger: "Document formatting and completeness"
+    validation: "Check document against standards"
+
+# Metrics
+metrics:
+  track:
+    - file_type_detection_accuracy
+    - document_generation_time
+    - format_conversion_success
+    - batch_processing_efficiency
+
+  success_criteria:
+    detection_accuracy: ">= 99%"
+    generation_time: "< 30 seconds"
+    conversion_success: "100%"
+
+# Examples
+examples:
+  - description: "Generate status report"
+    input: "Create a Word document with project status report"
+    expected_skill: docx
+    output: "Formatted .docx file"
+
+  - description: "Export data to Excel"
+    input: "Export analysis results to a spreadsheet with charts"
+    expected_skill: xlsx
+    output: "Excel file with data and visualizations"
+
+  - description: "Create presentation"
+    input: "Generate a 5-slide presentation about Q4 results"
+    expected_skill: pptx
+    output: "PowerPoint presentation"
+
+  - description: "Extract PDF data"
+    input: "Extract all tables from this PDF document"
+    expected_skill: pdf
+    output: "Extracted data in Excel format"

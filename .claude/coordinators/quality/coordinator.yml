@@ -1,0 +1,331 @@
+# Quality Coordinator Configuration
+# Purpose: Multi-layered quality assurance beyond basic checks
+
+name: quality-coordinator
+version: 1.0.0
+description: |
+  Extends Phase 2 quality-agent with domain-specific quality validation.
+  Provides comprehensive quality gates: testing, performance, security,
+  documentation, and architectural consistency.
+
+inherits_from: phase2-quality-agent
+
+obra_dependencies:
+  required:
+    - verification-before-completion  # Verify all quality claims
+    - test-driven-development        # Enforce testing
+    - defense-in-depth               # Multi-layered validation
+  recommended:
+    - requesting-code-review         # Peer validation
+    - systematic-debugging           # Debug quality issues
+    - root-cause-tracing            # Find quality root causes
+  optional:
+    - dispatching-parallel-agents   # Parallel quality checks
+
+# Quality dimensions
+dimensions:
+  testing:
+    skill: test-driven-development
+    description: "Test coverage, unit tests, integration tests"
+    triggers:
+      keywords:
+        - "test"
+        - "coverage"
+        - "pytest"
+        - "jest"
+        - "mock"
+      patterns:
+        - "test_.*\.py$"
+        - ".*\.test\.ts$"
+        - ".*\.spec\.ts$"
+    checks:
+      - "Test coverage >= 80%"
+      - "All critical paths tested"
+      - "No test anti-patterns"
+      - "Mocks used correctly (not production data)"
+    tools:
+      - testing-anti-patterns
+      - condition-based-waiting
+    precedence: HIGH
+
+  performance:
+    skill: python-performance-optimization, sql-optimization-patterns
+    description: "Load times, query performance, memory usage"
+    triggers:
+      keywords:
+        - "slow"
+        - "optimize"
+        - "performance"
+        - "profile"
+        - "latency"
+      patterns:
+        - "performance_test.*\.py$"
+        - ".*\.benchmark\.ts$"
+    checks:
+      - "API response time < 200ms"
+      - "Database queries optimized"
+      - "No N+1 query problems"
+      - "Memory leaks absent"
+      - "Frontend render time < 16ms (60fps)"
+    tools:
+      - python-performance-optimization
+      - sql-optimization-patterns
+    precedence: HIGH
+
+  security:
+    skill: moai-domain-security
+    description: "OWASP compliance, auth, encryption, audit logging"
+    triggers:
+      keywords:
+        - "security"
+        - "auth"
+        - "encrypt"
+        - "permission"
+        - "CORS"
+      patterns:
+        - "auth.*\.py$"
+        - "security.*\.py$"
+    checks:
+      - "All endpoints authenticated"
+      - "Sensitive data encrypted"
+      - "Input validation present"
+      - "OWASP Top 10 addressed"
+      - "No secrets in code/logs"
+      - "Audit logging in place"
+    tools:
+      - moai-domain-security
+    precedence: CRITICAL
+
+  documentation:
+    skill: writing-skills
+    description: "Code comments, API docs, README clarity"
+    triggers:
+      keywords:
+        - "document"
+        - "readme"
+        - "docstring"
+        - "API docs"
+      patterns:
+        - "README.*"
+        - "docs/.*"
+    checks:
+      - "Public functions documented"
+      - "Complex logic explained"
+      - "API endpoints documented"
+      - "Setup instructions complete"
+      - "Examples provided"
+    precedence: MEDIUM
+
+  architecture:
+    skill: consistency-patterns
+    description: "Code structure, naming, patterns, layer separation"
+    triggers:
+      keywords:
+        - "architecture"
+        - "structure"
+        - "pattern"
+        - "refactor"
+      patterns:
+        - ".*\.py$"
+        - ".*\.ts$"
+    checks:
+      - "Single responsibility principle"
+      - "Layer separation maintained"
+      - "Naming conventions consistent"
+      - "No code duplication"
+      - "Design patterns applied correctly"
+    tools:
+      - consistency-patterns
+    precedence: HIGH
+
+  accessibility:
+    skill: moai-domain-frontend
+    description: "Web accessibility, keyboard navigation, screen reader support"
+    triggers:
+      keywords:
+        - "accessibility"
+        - "a11y"
+        - "keyboard"
+        - "screen reader"
+      patterns:
+        - ".*components.*\.tsx$"
+        - ".*pages.*\.tsx$"
+    checks:
+      - "ARIA labels present"
+      - "Keyboard navigation works"
+      - "Color contrast sufficient"
+      - "Focus indicators visible"
+      - "Screen reader compatible"
+    precedence: MEDIUM
+
+# Quality gates
+gates:
+  pre_commit:
+    triggers: "Before committing code"
+    checks:
+      - linting_passed
+      - formatting_correct
+      - no_console_logs
+      - types_check_passed
+    blocking: true
+
+  pre_merge:
+    triggers: "Before merging PR"
+    checks:
+      - code_review_passed
+      - tests_passing
+      - coverage_adequate
+      - no_security_issues
+    blocking: true
+
+  pre_release:
+    triggers: "Before release"
+    checks:
+      - all_gates_passed
+      - performance_acceptable
+      - documentation_complete
+      - security_audit_passed
+    blocking: true
+
+  continuous:
+    triggers: "During development"
+    checks:
+      - build_passing
+      - tests_green
+      - no_regressions
+      - performance_stable
+    blocking: false
+
+# Quality metrics & thresholds
+metrics:
+  track:
+    - test_coverage_percentage
+    - api_response_time_ms
+    - database_query_time_ms
+    - build_time_seconds
+    - deployment_frequency
+    - defect_escape_rate
+    - security_issues_found
+
+  thresholds:
+    test_coverage: ">= 80%"
+    api_response_time: "< 200ms"
+    build_time: "< 60s"
+    deployment_stability: ">= 99%"
+    security_issues: "0 critical, < 3 high"
+
+# Domain-specific quality rules
+domain_rules:
+  python:
+    tools:
+      - test-driven-development
+      - python-performance-optimization
+      - testing-anti-patterns
+    checks:
+      - "Type hints present (pydantic/typing)"
+      - "Async patterns used correctly"
+      - "No bare except clauses"
+      - "Logging configured"
+    linters:
+      - pytest
+      - coverage
+      - black
+      - mypy
+
+  typescript:
+    tools:
+      - test-driven-development
+    checks:
+      - "No 'any' types without justification"
+      - "Strict mode enabled"
+      - "Tests for all components"
+      - "Props properly typed"
+    linters:
+      - jest
+      - eslint
+      - prettier
+      - typescript strict
+
+  database:
+    tools:
+      - sql-optimization-patterns
+    checks:
+      - "Indexes on foreign keys"
+      - "Queries use indexes"
+      - "No SELECT *"
+      - "Migrations reversible"
+    benchmarks:
+      - "Query explain plans reviewed"
+      - "Performance baselines set"
+
+  frontend:
+    tools:
+      - moai-domain-frontend
+    checks:
+      - "Components unit tested"
+      - "Accessibility standards met"
+      - "Responsive design verified"
+      - "Performance budget respected"
+    metrics:
+      - "Lighthouse score >= 90"
+      - "Core Web Vitals green"
+
+# Quality profiles
+profiles:
+  strict:
+    description: "Maximum quality enforcement"
+    coverage_minimum: 90
+    performance_budget: 100ms
+    security_level: CRITICAL
+    documentation_requirement: FULL
+
+  balanced:
+    description: "Standard quality enforcement"
+    coverage_minimum: 80
+    performance_budget: 200ms
+    security_level: HIGH
+    documentation_requirement: ADEQUATE
+
+  relaxed:
+    description: "Minimum viable quality"
+    coverage_minimum: 70
+    performance_budget: 500ms
+    security_level: MEDIUM
+    documentation_requirement: BASIC
+
+# Integration with Phase 2
+phase2_enhancement:
+  description: "Extends Phase 2 quality-agent with domain specialization"
+  base_checklist: "7-point quality review from Phase 2"
+  additions:
+    - "Domain-specific quality checks"
+    - "Automated metrics collection"
+    - "Performance profiling"
+    - "Security scanning"
+    - "Documentation validation"
+
+# Examples
+examples:
+  - description: "Quality gate for Python API"
+    input: "Review FastAPI endpoint for production readiness"
+    checks:
+      - test_coverage >= 80%
+      - performance_acceptable
+      - security_audit_passed
+      - documentation_complete
+
+  - description: "Quality gate for React component"
+    input: "Validate React component meets quality standards"
+    checks:
+      - component_tested
+      - accessibility_verified
+      - performance_within_budget
+      - props_typed
+
+  - description: "Full-stack quality validation"
+    input: "Comprehensive quality review of feature"
+    checks:
+      - python_quality_passed
+      - typescript_quality_passed
+      - database_performance_ok
+      - security_gate_passed

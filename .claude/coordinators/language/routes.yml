@@ -1,0 +1,232 @@
+# Language Coordinator Routing Rules
+# Defines specific routing patterns and precedence
+
+version: 1.0.0
+coordinator: language-coordinator
+
+# Routing rules with precedence (evaluated in order)
+routes:
+  # CRITICAL: Security and authentication patterns
+  - id: auth-python
+    precedence: CRITICAL
+    pattern:
+      keywords: ["authentication", "JWT", "OAuth"]
+      language_hint: "python"
+    route_to:
+      primary: moai-lang-python
+      secondary: moai-domain-security
+      obra_patterns: ["test-driven-development", "defense-in-depth"]
+    reason: "Authentication requires security-first approach with Python backend"
+
+  - id: auth-typescript
+    precedence: CRITICAL
+    pattern:
+      keywords: ["authentication", "JWT", "OAuth"]
+      language_hint: "typescript|react"
+    route_to:
+      primary: moai-lang-typescript
+      secondary: moai-domain-security
+      obra_patterns: ["test-driven-development", "defense-in-depth"]
+    reason: "Frontend authentication requires TypeScript with security patterns"
+
+  # HIGH: Framework-specific patterns
+  - id: fastapi
+    precedence: HIGH
+    pattern:
+      keywords: ["FastAPI", "fastapi", "@app", "APIRouter", "Pydantic"]
+    route_to:
+      primary: moai-lang-python
+      optional: moai-domain-backend
+      obra_patterns: ["test-driven-development", "verification-before-completion"]
+    reason: "FastAPI detected - Python async web framework"
+
+  - id: django
+    precedence: HIGH
+    pattern:
+      keywords: ["Django", "django", "models.Model", "views.py", "manage.py"]
+    route_to:
+      primary: moai-lang-python
+      optional: moai-domain-database
+      obra_patterns: ["test-driven-development", "systematic-debugging"]
+    reason: "Django detected - Python web framework with ORM"
+
+  - id: react
+    precedence: HIGH
+    pattern:
+      keywords: ["React", "useState", "useEffect", "Component", "jsx", "tsx"]
+    route_to:
+      primary: moai-lang-typescript
+      secondary: moai-domain-frontend
+      obra_patterns: ["test-driven-development", "brainstorming"]
+    reason: "React detected - TypeScript frontend framework"
+
+  - id: nextjs
+    precedence: HIGH
+    pattern:
+      keywords: ["Next.js", "getServerSideProps", "getStaticProps", "_app", "_document"]
+    route_to:
+      primary: moai-lang-typescript
+      optional: moai-domain-frontend
+      obra_patterns: ["test-driven-development", "verification-before-completion"]
+    reason: "Next.js detected - Full-stack TypeScript framework"
+
+  - id: swiftui
+    precedence: HIGH
+    pattern:
+      keywords: ["SwiftUI", "@State", "@Binding", "View", ".swift"]
+    route_to:
+      primary: developing-with-swift
+      obra_patterns: ["test-driven-development", "brainstorming"]
+    reason: "SwiftUI detected - Apple native UI framework"
+
+  # MEDIUM: Language-specific but not framework-specific
+  - id: python-general
+    precedence: MEDIUM
+    pattern:
+      file_extension: [".py", ".pyi"]
+      keywords: ["def ", "class ", "import ", "python"]
+    route_to:
+      primary: moai-lang-python
+      obra_patterns: ["using-superpowers", "test-driven-development"]
+    reason: "Python file or syntax detected"
+
+  - id: typescript-general
+    precedence: MEDIUM
+    pattern:
+      file_extension: [".ts", ".tsx"]
+      keywords: ["interface ", "type ", "typescript", "const ", "=>"]
+    route_to:
+      primary: moai-lang-typescript
+      obra_patterns: ["using-superpowers", "test-driven-development"]
+    reason: "TypeScript file or syntax detected"
+
+  - id: javascript-general
+    precedence: MEDIUM
+    pattern:
+      file_extension: [".js", ".jsx"]
+      keywords: ["function", "const ", "let ", "var ", "javascript"]
+    route_to:
+      primary: moai-lang-typescript  # Use TS skill for JS too
+      obra_patterns: ["using-superpowers", "test-driven-development"]
+    reason: "JavaScript detected - routing to TypeScript skill"
+
+  - id: swift-general
+    precedence: MEDIUM
+    pattern:
+      file_extension: [".swift"]
+      keywords: ["func ", "var ", "let ", "swift", "import Foundation"]
+    route_to:
+      primary: developing-with-swift
+      obra_patterns: ["using-superpowers", "test-driven-development"]
+    reason: "Swift file or syntax detected"
+
+  # LOW: Package management and configuration
+  - id: python-packages
+    precedence: LOW
+    pattern:
+      file_patterns: ["requirements.txt", "pyproject.toml", "Pipfile", "setup.py"]
+    route_to:
+      primary: moai-lang-python
+      obra_patterns: ["verification-before-completion"]
+    reason: "Python package management files"
+
+  - id: node-packages
+    precedence: LOW
+    pattern:
+      file_patterns: ["package.json", "tsconfig.json", "yarn.lock", "package-lock.json"]
+    route_to:
+      primary: moai-lang-typescript
+      obra_patterns: ["verification-before-completion"]
+    reason: "Node.js package management files"
+
+  - id: swift-packages
+    precedence: LOW
+    pattern:
+      file_patterns: ["Package.swift", ".xcodeproj", ".xcworkspace"]
+    route_to:
+      primary: developing-with-swift
+      obra_patterns: ["verification-before-completion"]
+    reason: "Swift package management files"
+
+# Special routing patterns
+special_patterns:
+  # Full-stack detection
+  full_stack:
+    triggers:
+      - "full-stack"
+      - "frontend and backend"
+      - "API with UI"
+      - "React.*FastAPI"
+      - "TypeScript.*Python"
+    action:
+      type: parallel_activation
+      routes:
+        - moai-lang-python
+        - moai-lang-typescript
+      obra_pattern: dispatching-parallel-agents
+    reason: "Full-stack task requiring multiple languages"
+
+  # Database with API
+  database_api:
+    triggers:
+      - "database.*API"
+      - "schema.*endpoint"
+      - "SQLAlchemy.*FastAPI"
+    action:
+      type: sequential_activation
+      routes:
+        1: moai-domain-database
+        2: moai-lang-python
+        3: moai-domain-backend
+      obra_pattern: subagent-driven-development
+    reason: "Database-driven API development"
+
+  # Testing patterns
+  testing:
+    triggers:
+      - "test"
+      - "pytest"
+      - "jest"
+      - "testing"
+      - "TDD"
+    action:
+      type: enhance_with_obra
+      base_route: detect_language  # Detect language first
+      obra_patterns:
+        - test-driven-development
+        - testing-anti-patterns
+        - defense-in-depth
+    reason: "Testing task - enforce TDD patterns"
+
+# Conflict resolution rules
+conflicts:
+  multiple_languages:
+    detection: "When multiple language patterns match"
+    resolution_priority:
+      1: file_extension  # Trust file extension first
+      2: framework_keywords  # Framework-specific terms second
+      3: syntax_keywords  # Language syntax third
+      4: user_prompt  # Ask user if still ambiguous
+
+  no_match:
+    detection: "When no language patterns match"
+    resolution:
+      1: check_open_files  # Check currently open files
+      2: check_project_context  # Look at project structure
+      3: use_brainstorming  # Fall back to brainstorming
+      4: prompt_user  # Ask for clarification
+
+# Performance optimizations
+optimizations:
+  cache_detection:
+    enabled: true
+    ttl: 300  # Cache for 5 minutes
+    key: "file_path + content_hash"
+
+  parallel_detection:
+    enabled: true
+    when: "multiple files to analyze"
+
+  early_termination:
+    enabled: true
+    when: "HIGH or CRITICAL precedence match found"

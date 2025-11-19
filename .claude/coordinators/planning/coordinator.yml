@@ -1,0 +1,280 @@
+# Planning Coordinator Configuration
+# Purpose: Complex project orchestration and execution
+
+name: planning-coordinator
+version: 1.0.0
+description: |
+  Orchestrates complex projects from ideation through completion.
+  Uses obra's planning and execution patterns to manage multi-phase
+  initiatives with proper scoping, design, implementation, and validation.
+
+obra_dependencies:
+  required:
+    - brainstorming                   # Refine and explore ideas
+    - writing-plans                   # Create implementation plans
+    - executing-plans                 # Execute plans systematically
+    - subagent-driven-development    # Delegate work appropriately
+  recommended:
+    - verification-before-completion  # Verify each phase
+    - requesting-code-review          # Quality checkpoints
+    - dispatching-parallel-agents    # Parallel work streams
+  optional:
+    - systematic-debugging           # Debug project issues
+    - root-cause-tracing            # Trace project problems
+
+# Planning phases
+phases:
+  discovery:
+    description: "Understand problem, explore solutions"
+    skill: brainstorming
+    activities:
+      - "Clarify requirements"
+      - "Define success criteria"
+      - "Identify constraints"
+      - "Explore design options"
+      - "Risk assessment"
+    output: "Clear understanding and design direction"
+    typical_duration: "1-4 hours"
+
+  planning:
+    description: "Create detailed implementation plan"
+    skill: writing-plans
+    activities:
+      - "Break down into bite-sized tasks"
+      - "Define dependencies"
+      - "Estimate effort"
+      - "Create timeline"
+      - "Identify risks and mitigations"
+    output: "Detailed implementation plan with task list"
+    typical_duration: "1-3 hours"
+
+  execution:
+    description: "Implement plan systematically"
+    skill: executing-plans
+    activities:
+      - "Execute tasks in order"
+      - "Verify each task completion"
+      - "Adjust plan as needed"
+      - "Maintain progress tracking"
+      - "Document decisions"
+    output: "Completed implementation with documentation"
+    typical_duration: "Varies by scope"
+
+  validation:
+    description: "Verify results meet criteria"
+    skill: verification-before-completion
+    activities:
+      - "Test against success criteria"
+      - "Code review for quality"
+      - "Performance validation"
+      - "Security audit"
+      - "Documentation review"
+    output: "Verified, quality-assured deliverable"
+    typical_duration: "1-2 hours"
+
+# Project types
+project_types:
+  small_feature:
+    scope: "Single component or function"
+    phases: ["discovery", "planning", "execution", "validation"]
+    typical_effort: "2-8 hours"
+    work_pattern: "Single session or split sessions"
+    review_gates: [execution, validation]
+
+  medium_feature:
+    scope: "Multi-layer feature (API + Frontend + DB)"
+    phases: ["discovery", "planning", "execution", "validation"]
+    typical_effort: "1-3 days"
+    work_pattern: "Multiple sessions with clear breakpoints"
+    review_gates: [planning, execution, validation]
+    parallelization: "3-4 work streams"
+
+  large_project:
+    scope: "Complete system or major refactor"
+    phases: ["discovery", "planning", "execution", "validation"]
+    typical_effort: "1-4 weeks"
+    work_pattern: "Multiple sprints with daily standups"
+    review_gates: [discovery, planning, daily_execution, validation]
+    parallelization: "4-7 work streams"
+
+# Planning templates
+templates:
+  sprint_planning:
+    trigger: "Plan a sprint (1-2 week effort)"
+    structure:
+      1: "Review backlog and priorities"
+      2: "Estimate and commit tasks"
+      3: "Break into daily work items"
+      4: "Identify dependencies and risks"
+      5: "Plan parallel work streams"
+    output: "Sprint plan with daily breakdown"
+
+  feature_planning:
+    trigger: "Plan a single feature"
+    structure:
+      1: "Understand feature requirements"
+      2: "Design architecture"
+      3: "Create task breakdown"
+      4: "Identify cross-team dependencies"
+      5: "Estimate and commit"
+    output: "Feature implementation plan"
+
+  release_planning:
+    trigger: "Plan a release"
+    structure:
+      1: "Define release scope"
+      2: "Prioritize features"
+      3: "Plan testing strategy"
+      4: "Plan deployment"
+      5: "Plan rollback procedures"
+    output: "Release plan with deployment checklist"
+
+  refactoring_planning:
+    trigger: "Plan code refactoring"
+    structure:
+      1: "Define refactoring goals"
+      2: "Assess impact and risks"
+      3: "Plan incremental changes"
+      4: "Design testing strategy"
+      5: "Plan rollback if needed"
+    output: "Refactoring plan with verification points"
+
+# Work stream coordination
+coordination:
+  parallel_work:
+    detection: "Multiple independent tasks"
+    approach: "Use dispatching-parallel-agents"
+    coordination:
+      - "Each stream has clear interface"
+      - "Integration points defined"
+      - "Merge strategy determined"
+      - "Conflict resolution plan"
+
+  dependent_work:
+    detection: "Task A blocks Task B"
+    approach: "Sequential execution with clear handoff"
+    handoff_checklist:
+      - "Verify Task A complete"
+      - "Document outputs"
+      - "Review with Task B owner"
+      - "Begin Task B"
+
+  blocking_work:
+    detection: "Work blocked by external factor"
+    approach: "Context switch to parallel work"
+    recovery:
+      - "Monitor blocker"
+      - "Switch to alternative tasks"
+      - "Resume when unblocked"
+
+# Progress tracking
+tracking:
+  metrics:
+    - tasks_completed
+    - tasks_in_progress
+    - tasks_blocked
+    - estimated_vs_actual
+    - quality_gate_passes
+
+  reporting:
+    daily: "Current task status and blockers"
+    weekly: "Progress against plan, velocity, risks"
+    completion: "Final metrics and retrospective"
+
+  adjustments:
+    when: "Actual diverges from plan"
+    approach:
+      - "Understand the divergence"
+      - "Assess impact on timeline"
+      - "Adjust plan if needed"
+      - "Update stakeholders"
+
+# Integration with other coordinators
+integrations:
+  language_coordinator:
+    when: "Implementation involves code"
+    usage: "Route code tasks to language specialists"
+
+  architecture_coordinator:
+    when: "Multi-layer feature"
+    usage: "Ensure cross-layer consistency"
+
+  quality_coordinator:
+    when: "Validation phase"
+    usage: "Run quality gates before completion"
+
+  document_coordinator:
+    when: "Creating documentation"
+    usage: "Route to appropriate document format"
+
+# Decision making
+decision_framework:
+  scope_changes:
+    when: "Scope expands during execution"
+    process:
+      1: "Assess impact on timeline"
+      2: "Determine if critical or deferrable"
+      3: "Decision: include, defer, or branch"
+      4: "Update plan accordingly"
+
+  technical_decisions:
+    when: "Design choice points arise"
+    process:
+      1: "Use brainstorming to explore"
+      2: "Document trade-offs"
+      3: "Make decision with reasoning"
+      4: "Communicate to team"
+
+  risk_management:
+    when: "Risks become actual problems"
+    process:
+      1: "Invoke root-cause-tracing"
+      2: "Assess impact"
+      3: "Execute mitigation"
+      4: "Learn and document"
+
+# Metrics
+metrics:
+  track:
+    - planning_accuracy (estimated vs actual)
+    - scope_creep (scope changes)
+    - risk_materialization (risks that happen)
+    - task_completion_rate
+    - quality_gate_pass_rate
+
+  success_criteria:
+    planning_accuracy: ">= 80%"
+    scope_creep: "< 20%"
+    quality_gates: "100% pass"
+    on_time_delivery: ">= 95%"
+
+# Examples
+examples:
+  - description: "Plan a medium feature"
+    input: "I need to implement user authentication (API + React UI)"
+    flow:
+      1: "Brainstorm: Choose JWT vs OAuth, session management"
+      2: "Plan: Break into schema, backend, frontend, testing"
+      3: "Execute: Parallel backend and frontend streams"
+      4: "Validate: Security audit, integration testing"
+    output: "Fully implemented, tested, documented feature"
+
+  - description: "Plan sprint with multiple features"
+    input: "Plan a 2-week sprint with 5 features"
+    flow:
+      1: "Review backlog and priorities"
+      2: "Estimate and commit tasks"
+      3: "Plan 4 parallel work streams"
+      4: "Daily progress tracking"
+      5: "End-of-sprint validation"
+    output: "Sprint plan with daily breakdown"
+
+  - description: "Plan major refactoring"
+    input: "Refactor authentication system (significant risk)"
+    flow:
+      1: "Assess impact and risks"
+      2: "Plan incremental changes"
+      3: "Design comprehensive testing"
+      4: "Execute with parallel verification"
+      5: "Complete rollback if needed"
+    output: "Safely refactored system with validation"

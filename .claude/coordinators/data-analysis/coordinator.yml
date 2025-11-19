@@ -1,0 +1,247 @@
+# Data Analysis Coordinator Configuration
+# Purpose: End-to-end data pipeline automation
+
+name: data-analysis-coordinator
+version: 1.0.0
+description: |
+  Orchestrates data analysis tasks: CSV processing, statistical analysis,
+  corpus discovery, and visualization. Routes to appropriate analysis
+  tools and ensures data quality throughout pipeline.
+
+obra_dependencies:
+  required:
+    - verification-before-completion  # Verify data integrity
+    - brainstorming                   # Determine analysis approach
+  recommended:
+    - systematic-debugging           # Debug data issues
+    - test-driven-development        # Data quality tests
+  optional:
+    - dispatching-parallel-agents   # Parallel analysis tasks
+    - subagent-driven-development   # Complex analysis pipelines
+
+# Analysis types and skills
+skills:
+  csv_processing:
+    skill: csv-data-summarizer-claude-skill-main
+    description: "CSV analysis, statistics, quick visualizations with pandas"
+    triggers:
+      keywords:
+        - "CSV"
+        - "data"
+        - "analyze"
+        - "summarize"
+        - "statistics"
+        - "aggregate"
+      file_patterns:
+        - "*.csv$"
+        - "*.tsv$"
+        - "data.*\.xlsx?$"
+    use_cases:
+      - "Load and explore CSV data"
+      - "Generate summary statistics"
+      - "Create quick visualizations"
+      - "Identify patterns and anomalies"
+      - "Data quality checks"
+    precedence: HIGH
+
+  corpus_analysis:
+    skill: corpus-discovery-dialogue
+    description: "Text corpus analysis, research questions, analytical approaches"
+    triggers:
+      keywords:
+        - "corpus"
+        - "text analysis"
+        - "research"
+        - "topic"
+        - "text mining"
+        - "document analysis"
+      file_patterns:
+        - "corpus.*\.txt$"
+        - "documents/.*\.txt$"
+    use_cases:
+      - "Discover research questions"
+      - "Develop analytical approaches"
+      - "Pattern identification in text"
+      - "Topic modeling"
+      - "Thematic analysis"
+    precedence: HIGH
+
+  visualization:
+    skill: future-plotly-skill  # Placeholder for future integration
+    description: "Data visualization with Plotly, Recharts, Matplotlib"
+    triggers:
+      keywords:
+        - "chart"
+        - "graph"
+        - "visualization"
+        - "plot"
+        - "dashboard"
+    use_cases:
+      - "Create interactive dashboards"
+      - "Generate publication-quality plots"
+      - "Real-time data visualization"
+      - "Multi-dimensional analysis"
+    precedence: MEDIUM
+    status: "Future enhancement"
+
+# Analysis pipelines
+pipelines:
+  exploratory_data_analysis:
+    description: "Quick understanding of a dataset"
+    steps:
+      1: "Load data and check structure"
+      2: "Generate summary statistics"
+      3: "Identify missing values"
+      4: "Check for outliers"
+      5: "Create basic visualizations"
+      6: "Document findings"
+    tools:
+      - csv-data-summarizer
+    estimation: "15-30 minutes"
+
+  statistical_analysis:
+    description: "Deeper statistical investigation"
+    steps:
+      1: "Define hypothesis"
+      2: "Data preparation and cleaning"
+      3: "Exploratory analysis"
+      4: "Statistical tests"
+      5: "Visualization of results"
+      6: "Report findings with confidence intervals"
+    tools:
+      - csv-data-summarizer
+      - verification-before-completion
+    estimation: "1-3 hours"
+
+  corpus_research:
+    description: "Text corpus analysis with research methodology"
+    steps:
+      1: "Define research questions"
+      2: "Develop analytical framework"
+      3: "Document approach"
+      4: "Execute analysis"
+      5: "Validate findings"
+      6: "Generate report"
+    tools:
+      - corpus-discovery-dialogue
+      - brainstorming
+    estimation: "2-8 hours"
+
+  data_pipeline_validation:
+    description: "Quality assurance for data processing"
+    steps:
+      1: "Check data completeness"
+      2: "Validate data types"
+      3: "Verify transformations"
+      4: "Test edge cases"
+      5: "Performance profiling"
+      6: "Document pipeline"
+    tools:
+      - csv-data-summarizer
+      - test-driven-development
+    estimation: "1-4 hours"
+
+# Data quality checks
+quality:
+  completeness:
+    checks:
+      - "No missing critical fields"
+      - "All rows have required data"
+      - "Column counts match schema"
+
+  consistency:
+    checks:
+      - "Data types consistent"
+      - "Values in expected ranges"
+      - "No duplicate records (unless expected)"
+      - "Referential integrity maintained"
+
+  accuracy:
+    checks:
+      - "Data matches source"
+      - "Calculations verified"
+      - "Outliers investigated"
+      - "Assumptions documented"
+
+  timeliness:
+    checks:
+      - "Data is current"
+      - "Update frequency appropriate"
+      - "Timestamps valid"
+
+# Integration patterns
+integrations:
+  language_coordinator:
+    when: "Analysis involves code generation"
+    action: "Route data transformation code to language coordinator"
+
+  document_coordinator:
+    when: "Analysis results need formatting"
+    action: "Export to Word, Excel, or PDF via document coordinator"
+
+  visualization:
+    when: "Results need visualization"
+    action: "Coordinate with visualization tools"
+
+# Analysis request patterns
+patterns:
+  quick_analysis:
+    trigger: "Quick summary of data"
+    approach: "csv-data-summarizer"
+    output: "Summary statistics and simple charts"
+    time: "< 10 minutes"
+
+  detailed_analysis:
+    trigger: "In-depth data exploration"
+    approach: "Full EDA pipeline"
+    output: "Comprehensive report with insights"
+    time: "30-120 minutes"
+
+  research_study:
+    trigger: "Academic or research analysis"
+    approach: "Corpus analysis with methodology"
+    output: "Peer-review ready findings"
+    time: "Multiple sessions"
+
+# Metrics
+metrics:
+  track:
+    - analysis_accuracy
+    - data_quality_score
+    - pipeline_success_rate
+    - finding_validation_rate
+    - time_per_analysis
+
+  quality_thresholds:
+    data_completeness: ">= 95%"
+    consistency_check: "100%"
+    finding_confidence: ">= 95%"
+    pipeline_success: ">= 98%"
+
+# Bypass and testing
+bypass:
+  flag: "--skip-validation"
+  environment: "SKIP_DATA_CHECKS=true"
+  use_case: "For testing with sample/synthetic data"
+
+# Examples
+examples:
+  - description: "Explore customer data"
+    input: "Analyze customer.csv to find patterns and segments"
+    expected_flow: "Load → Summary stats → Visualization → Insights"
+    output: "Statistical summary and identified customer segments"
+
+  - description: "Research question development"
+    input: "I have a corpus of product reviews. What should I analyze?"
+    expected_flow: "brainstorming → Define RQs → Analysis framework"
+    output: "Research questions and analytical approach"
+
+  - description: "Data quality validation"
+    input: "Validate that our ETL pipeline produces clean data"
+    expected_flow: "Load → Check completeness → Check consistency → Report"
+    output: "Data quality assessment and recommendations"
+
+  - description: "Statistical hypothesis testing"
+    input: "Does our new feature improve user engagement?"
+    expected_flow: "Define hypothesis → Statistical test → Visualize → Report"
+    output: "Statistical findings with confidence intervals"

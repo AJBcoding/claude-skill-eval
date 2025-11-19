@@ -1,0 +1,206 @@
+# Language Coordinator Configuration
+# Purpose: Route language-specific tasks to appropriate specialists
+# Principle: Enhance obra patterns, never bypass them
+
+name: language-coordinator
+version: 1.0.0
+description: |
+  Routes language-specific tasks to specialized skills while enforcing
+  obra superpowers patterns (TDD, brainstorming, verification).
+
+  Handles Python, TypeScript, and Swift development tasks with
+  automatic language detection and skill activation.
+
+# Required obra patterns that must be used
+obra_dependencies:
+  required:
+    - using-superpowers       # Always check for applicable skills first
+    - test-driven-development # Enforce TDD for implementation
+    - verification-before-completion # Verify all claims
+  recommended:
+    - brainstorming          # For design decisions
+    - systematic-debugging   # For language-specific issues
+    - requesting-code-review # After implementation
+  optional:
+    - dispatching-parallel-agents # For multi-language tasks
+    - root-cause-tracing    # For debugging
+
+# Language-specific skill routing
+skills:
+  python:
+    skill: moai-lang-python
+    description: |
+      Python 3.13.9, FastAPI 0.115.x, Django 5.2 LTS,
+      Pydantic v2, SQLAlchemy 2.0, async patterns
+    triggers:
+      keywords:
+        - FastAPI
+        - Django
+        - Pydantic
+        - SQLAlchemy
+        - Python
+        - pytest
+        - asyncio
+        - Flask
+      file_patterns:
+        - "\.py$"
+        - "\.pyi$"
+        - "requirements\.txt$"
+        - "pyproject\.toml$"
+        - "Pipfile$"
+      tool_patterns:
+        - tool: "Edit|Write"
+          file: ".*\.py$"
+    precedence: HIGH
+    pre_activation:
+      - Check for python-performance-optimization need
+      - Consider sql-optimization-patterns for database code
+    post_activation:
+      - Trigger test-driven-development for new code
+      - Consider requesting-code-review for complex changes
+
+  typescript:
+    skill: moai-lang-typescript
+    description: |
+      TypeScript 5.9.3, Next.js 16, React 19, tRPC,
+      Zod for type-safe schemas, strict typing
+    triggers:
+      keywords:
+        - React
+        - TypeScript
+        - Next.js
+        - tRPC
+        - Zod
+        - Component
+        - "use[A-Z]\\w+"  # React hooks pattern
+        - JSX
+        - TSX
+      file_patterns:
+        - "\.tsx?$"
+        - "\.jsx?$"
+        - "tsconfig\.json$"
+        - "package\.json$"
+        - "\.d\.ts$"
+      tool_patterns:
+        - tool: "Edit|Write"
+          file: ".*\.tsx?$"
+    precedence: HIGH
+    pre_activation:
+      - Check for moai-domain-frontend patterns
+      - Consider component architecture needs
+    post_activation:
+      - Ensure type safety verification
+      - Trigger test-driven-development for components
+
+  swift:
+    skill: developing-with-swift
+    description: |
+      SwiftUI development, macOS patterns, native state management,
+      async/await, Xcode build tools
+    triggers:
+      keywords:
+        - SwiftUI
+        - Swift
+        - macOS
+        - iOS
+        - "@State"
+        - "@Published"
+        - "ObservableObject"
+        - Xcode
+      file_patterns:
+        - "\.swift$"
+        - "Package\.swift$"
+        - "\.xcodeproj"
+        - "\.xcworkspace"
+      tool_patterns:
+        - tool: "Edit|Write"
+          file: ".*\.swift$"
+    precedence: HIGH
+    pre_activation:
+      - Consider UI/UX best practices
+      - Check for platform-specific requirements
+    post_activation:
+      - Verify SwiftUI preview functionality
+      - Consider performance implications
+
+# Routing configuration
+routing:
+  strategy: best_match  # Options: first_match, best_match, all_matching
+  conflict_resolution:
+    # When multiple languages detected
+    multi_language_detected:
+      action: prompt_user  # or: use_primary, activate_all
+      primary_detection: file_extension  # or: content_analysis
+
+    # When no language detected
+    no_match:
+      action: use_brainstorming
+      fallback_message: |
+        No specific language detected. Using brainstorming to understand
+        the requirements before proceeding.
+
+  # Automatic multi-language handling
+  multi_language_patterns:
+    - pattern: "full-stack"
+      activate: ["python", "typescript"]
+      parallel: true
+    - pattern: "API.*frontend"
+      activate: ["python", "typescript"]
+      parallel: true
+
+# Integration with Phase 2 agents
+phase2_integration:
+  # How this coordinator works with existing agents
+  debug_agent:
+    trigger: "on_language_specific_error"
+    enhancement: "Add language-specific debugging patterns"
+
+  consistency_agent:
+    trigger: "before_routing"
+    enhancement: "Ensure language patterns match project standards"
+
+  quality_agent:
+    trigger: "after_implementation"
+    enhancement: "Language-specific quality checks"
+
+# Metrics to track
+metrics:
+  track:
+    - correct_language_detection  # Was the right language identified?
+    - skill_activation_time       # Time to activate skill
+    - obra_pattern_usage         # Which obra patterns were used
+    - multi_language_tasks       # Tasks requiring multiple languages
+    - fallback_frequency         # How often fallback was needed
+
+  success_criteria:
+    correct_language_detection: ">= 95%"
+    skill_activation_time: "< 2 seconds"
+    obra_pattern_usage: "100%"  # Must always use obra patterns
+
+# Examples for testing
+examples:
+  - description: "FastAPI endpoint creation"
+    input: "Create a FastAPI endpoint for user registration"
+    expected_route: "python"
+    expected_skills: ["moai-lang-python", "test-driven-development"]
+
+  - description: "React component with TypeScript"
+    input: "Build a TypeScript React component for data visualization"
+    expected_route: "typescript"
+    expected_skills: ["moai-lang-typescript", "moai-domain-frontend"]
+
+  - description: "SwiftUI view"
+    input: "Create a SwiftUI settings view for macOS"
+    expected_route: "swift"
+    expected_skills: ["developing-with-swift"]
+
+  - description: "Full-stack task"
+    input: "Build an API with FastAPI and React frontend"
+    expected_route: ["python", "typescript"]
+    expected_skills: ["moai-lang-python", "moai-lang-typescript", "dispatching-parallel-agents"]
+
+# Bypass mechanism for testing
+bypass:
+  flag: "--no-language-coordinator"
+  environment: "SKIP_LANGUAGE_COORDINATOR=true"
+  direct_skill_activation: true  # Allow direct skill calls when bypassed

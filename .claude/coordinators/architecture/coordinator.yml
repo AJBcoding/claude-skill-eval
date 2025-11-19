@@ -1,0 +1,244 @@
+# Architecture Coordinator Configuration
+# Purpose: Ensure consistent patterns across system layers (DB, API, Frontend, Security)
+
+name: architecture-coordinator
+version: 1.0.0
+description: |
+  Orchestrates architectural consistency across database, API, frontend,
+  and security layers. Ensures patterns are applied uniformly and layers
+  coordinate properly with each other.
+
+obra_dependencies:
+  required:
+    - brainstorming           # Design decisions
+    - test-driven-development # Implementation discipline
+    - verification-before-completion # Architecture validation
+  recommended:
+    - systematic-debugging   # Architecture issues
+    - requesting-code-review # Review cross-layer changes
+  optional:
+    - dispatching-parallel-agents # Multi-layer parallel work
+    - root-cause-tracing    # Finding architectural issues
+
+# Architectural domains
+domains:
+  database:
+    skill: moai-domain-database
+    description: |
+      Schema design, migration strategies, query optimization,
+      indexing, PostgreSQL best practices
+    triggers:
+      keywords:
+        - schema
+        - database
+        - migration
+        - "CREATE TABLE"
+        - PostgreSQL
+        - SQLAlchemy
+        - ORM
+        - index
+        - query
+      patterns:
+        - "db/.*\.py$"
+        - "migrations/.*\.py$"
+        - "schema\.sql$"
+    precedence: HIGH
+    integration:
+      pre: "Coordinate with backend API patterns"
+      post: "Validate query performance"
+
+  backend_api:
+    skill: moai-domain-backend
+    description: |
+      API architecture (REST, GraphQL, gRPC), error handling,
+      validation patterns, microservices patterns
+    triggers:
+      keywords:
+        - API
+        - endpoint
+        - route
+        - request
+        - response
+        - middleware
+        - serialization
+        - "class.*View"
+        - "@app"
+      patterns:
+        - "api/.*\.py$"
+        - "routes/.*\.py$"
+        - "src/.*routes\.ts$"
+    precedence: HIGH
+    integration:
+      pre: "Coordinate with database schema"
+      post: "Validate error handling"
+
+  frontend:
+    skill: moai-domain-frontend
+    description: |
+      React patterns, component architecture, state management,
+      performance optimization, prop drilling
+    triggers:
+      keywords:
+        - component
+        - state
+        - reducer
+        - Redux
+        - context
+        - hook
+        - JSX
+        - "interface.*Props"
+      patterns:
+        - "components/.*\.tsx$"
+        - "pages/.*\.tsx$"
+        - "src/.*\.tsx?$"
+    precedence: HIGH
+    integration:
+      pre: "Coordinate with backend API contracts"
+      post: "Validate performance"
+
+  security:
+    skill: moai-domain-security
+    description: |
+      OWASP Top 10 compliance, authentication, authorization,
+      encryption, audit logging, security best practices
+    triggers:
+      keywords:
+        - auth
+        - JWT
+        - OAuth
+        - encrypt
+        - password
+        - security
+        - permission
+        - CORS
+        - "X-"  # Headers
+      patterns:
+        - "auth/.*\.py$"
+        - "security/.*\.py$"
+    precedence: CRITICAL  # Security is always critical
+    integration:
+      pre: "Validate from first design"
+      post: "Final security review"
+
+# Architectural patterns
+patterns:
+  # Cross-layer coordination patterns
+  database_api_contract:
+    description: "Database schema and API contract alignment"
+    triggers:
+      - "full.*API.*database"
+      - "schema.*endpoint"
+      - "database.*endpoint"
+    activation:
+      1: moai-domain-database
+      2: moai-domain-backend
+      3: verify_contract  # Custom action
+    obra_pattern: subagent-driven-development
+
+  frontend_api_integration:
+    description: "Frontend consuming API endpoints"
+    triggers:
+      - "React.*API"
+      - "fetch.*endpoint"
+      - "component.*data"
+    activation:
+      1: moai-domain-backend  # Start with API contract
+      2: moai-domain-frontend # Then frontend implementation
+    obra_pattern: subagent-driven-development
+
+  full_stack:
+    description: "Complete stack: database → API → frontend"
+    triggers:
+      - "full-stack"
+      - "end-to-end"
+      - "database.*API.*frontend"
+    activation:
+      1: moai-domain-database
+      2: moai-domain-backend
+      3: moai-domain-frontend
+    obra_pattern: dispatching-parallel-agents
+
+  security_everywhere:
+    description: "Security considerations in all layers"
+    triggers:
+      - "authentication"
+      - "authorization"
+      - "encrypt"
+      - "security"
+    activation:
+      1: moai-domain-security  # Security first
+      2: appropriate_domain    # Then apply to layer
+    obra_pattern: defense-in-depth
+
+# Layer integration rules
+layer_integration:
+  # How layers communicate
+  database_to_api:
+    validation:
+      - "Schema matches API types"
+      - "Indexes support query patterns"
+      - "Queries are optimized"
+    tool: "sql-optimization-patterns"
+
+  api_to_frontend:
+    validation:
+      - "API contracts are documented"
+      - "Response formats are typed"
+      - "Error handling is consistent"
+    consideration: "Type safety (TypeScript)"
+
+  security_integration:
+    database: "Encryption at rest, audit logs"
+    api: "Authentication, authorization, validation"
+    frontend: "CORS, secure storage, input validation"
+    cross_layer: "Consistent security model"
+
+# Architectural validation
+validation:
+  cross_layer_consistency:
+    - "All layers use same authentication model"
+    - "Error handling is consistent across stack"
+    - "Logging/monitoring is unified"
+    - "Type contracts between layers"
+
+  performance:
+    - "Database queries are optimized"
+    - "API response times acceptable"
+    - "Frontend renders efficiently"
+
+  security:
+    - "All endpoints authenticated"
+    - "Input validated at boundaries"
+    - "Secrets not in code or logs"
+    - "CORS properly configured"
+
+# Metrics
+metrics:
+  track:
+    - layer_consistency_score
+    - contract_alignment
+    - performance_baseline
+    - security_coverage
+    - refactor_frequency  # How often layers need changes
+
+  success_criteria:
+    layer_consistency: ">= 95%"
+    contract_alignment: "100%"
+    security_coverage: "100%"
+
+# Examples
+examples:
+  - description: "Database-first design"
+    input: "Design a user table schema with password hashing"
+    expected_domains: ["database", "security"]
+    coordination: "Ensure passwords hashed at storage layer"
+
+  - description: "API-frontend contract"
+    input: "Build user login endpoint and React component"
+    expected_domains: ["backend_api", "frontend", "security"]
+    coordination: "Align API response with component state"
+
+  - description: "Full-stack feature"
+    input: "Implement user registration (database, API, UI)"
+    expected_domains: ["database", "backend_api", "frontend", "security"]
+    coordination: "Parallel with contract validation"

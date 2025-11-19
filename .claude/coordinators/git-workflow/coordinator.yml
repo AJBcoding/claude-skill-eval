@@ -1,0 +1,319 @@
+# Git Workflow Coordinator Configuration
+# Purpose: Safe, sophisticated git operations and workflow automation
+
+name: git-workflow-coordinator
+version: 1.0.0
+description: |
+  Orchestrates git workflows: branch management, worktrees, commit
+  discipline, PR creation, and merge coordination. Ensures best practices
+  and prevents common mistakes through validation gates.
+
+obra_dependencies:
+  required:
+    - using-git-worktrees              # Isolated workspaces
+    - finishing-a-development-branch   # Safe branch completion
+  recommended:
+    - verification-before-completion   # Verify before committing
+    - requesting-code-review           # PR review workflow
+  optional:
+    - dispatching-parallel-agents     # Parallel branch work
+    - subagent-driven-development     # Complex git workflows
+
+# Core git operations
+operations:
+  branch_management:
+    skill: using-git-worktrees
+    description: "Create, manage, switch between branches safely"
+    operations:
+      - "Create feature branch"
+      - "Switch branches"
+      - "Manage work-in-progress"
+      - "Clean up old branches"
+      - "Parallel work on branches"
+    triggers:
+      keywords:
+        - "branch"
+        - "create branch"
+        - "switch to"
+        - "new branch"
+      patterns:
+        - "feature/"
+        - "bugfix/"
+        - "hotfix/"
+    precedence: HIGH
+
+  commit_discipline:
+    skill: finishing-a-development-branch
+    description: "Commits with clear history and good messages"
+    practices:
+      - "Logical, atomic commits"
+      - "Descriptive commit messages"
+      - "No WIP commits to main"
+      - "Squash when appropriate"
+      - "Verified before committing"
+    validation:
+      - "Commit message format"
+      - "Changes are cohesive"
+      - "Tests passing"
+      - "No debug code"
+
+  branch_completion:
+    skill: finishing-a-development-branch
+    description: "Complete branches systematically"
+    steps:
+      1: "Verify all changes committed"
+      2: "Rebase on main if needed"
+      3: "Run final tests"
+      4: "Create comprehensive commit messages"
+      5: "Create PR with context"
+    output: "Ready-to-merge PR"
+
+  pr_workflow:
+    skill: requesting-code-review
+    description: "Create PRs, manage reviews, handle feedback"
+    workflow:
+      - "Create PR with description"
+      - "Link to issues"
+      - "Request reviewers"
+      - "Address feedback"
+      - "Merge when approved"
+    pr_requirements:
+      - "Clear description"
+      - "Linked issues"
+      - "No merge conflicts"
+      - "All checks passing"
+      - "At least one approval"
+
+  merge_coordination:
+    skill: finishing-a-development-branch
+    description: "Safe merge operations"
+    strategies:
+      - "Squash for small features"
+      - "Rebase for clean history"
+      - "Merge commit for releases"
+    validation:
+      - "CI/CD passing"
+      - "Code review approved"
+      - "No conflicting changes"
+      - "Backwards compatibility verified"
+
+# Workflow types
+workflows:
+  feature_branch:
+    description: "Standard feature development"
+    steps:
+      1: "Create feature branch from main"
+      2: "Implement feature with commits"
+      3: "Create PR with description"
+      4: "Address review feedback"
+      5: "Merge to main"
+    branch_naming: "feature/short-description"
+    pr_template: "Feature template"
+    protection_rules:
+      - "Requires code review"
+      - "Requires all checks passing"
+
+  bugfix_branch:
+    description: "Quick bug fixes"
+    steps:
+      1: "Create bugfix branch from main"
+      2: "Implement minimal fix"
+      3: "Add test for regression"
+      4: "Create PR with issue link"
+      5: "Fast-track merge"
+    branch_naming: "bugfix/issue-number"
+    pr_template: "Bugfix template"
+    protection_rules:
+      - "Requires code review"
+      - "Can fast-track if critical"
+
+  hotfix_branch:
+    description: "Production emergency fixes"
+    steps:
+      1: "Create hotfix branch from release tag"
+      2: "Implement critical fix"
+      3: "Test thoroughly"
+      4: "Create PR to main and release branch"
+      5: "Deploy to production"
+      6: "Merge to main"
+    branch_naming: "hotfix/issue-number"
+    pr_template: "Hotfix template"
+    emergency_procedure: true
+
+  release_branch:
+    description: "Prepare release"
+    steps:
+      1: "Create release branch from main"
+      2: "Update version numbers"
+      3: "Update changelog"
+      4: "Create PR for review"
+      5: "Tag release"
+      6: "Merge back to main"
+    branch_naming: "release/version-number"
+    pr_template: "Release template"
+    protection_rules:
+      - "Requires approval"
+      - "Must pass all tests"
+
+  experimental_branch:
+    description: "Exploratory work"
+    steps:
+      1: "Create experimental branch"
+      2: "Explore options freely"
+      3: "Decide: keep or discard"
+      4: "If keeping: rebase and create PR"
+    branch_naming: "experimental/description"
+    deletion: "Delete after decision"
+
+# Commit message conventions
+commit_conventions:
+  format: "[type]: [scope] - [description]"
+  types:
+    feat: "New feature"
+    fix: "Bug fix"
+    refactor: "Code restructuring"
+    test: "Test additions/changes"
+    docs: "Documentation"
+    style: "Formatting, no logic change"
+    chore: "Build, dependencies, etc"
+    perf: "Performance improvement"
+
+  examples:
+    - "feat: auth - Add JWT token refresh endpoint"
+    - "fix: api - Handle null response from upstream service"
+    - "refactor: db - Simplify user query with better indexing"
+    - "test: frontend - Add tests for form validation"
+    - "docs: readme - Update installation instructions"
+
+  validation:
+    - "Clear, imperative mood"
+    - "No more than 72 characters"
+    - "References issue numbers"
+    - "Explains why, not just what"
+
+# Parallel work management
+parallel_work:
+  worktrees:
+    purpose: "Work on multiple branches simultaneously"
+    usage:
+      - "Main worktree on main branch"
+      - "Feature worktree for feature development"
+      - "Hotfix worktree for urgent fixes"
+    benefits:
+      - "No stashing/unstashing"
+      - "No branch switching"
+      - "Independent testing"
+    management:
+      - "Create with skill: using-git-worktrees"
+      - "List with: git worktree list"
+      - "Clean up after completion"
+
+  merge_conflicts:
+    detection: "Conflicts during rebase or merge"
+    resolution_strategy:
+      1: "Identify conflict sections"
+      2: "Understand both sides"
+      3: "Choose resolution"
+      4: "Test after resolution"
+      5: "Continue merge"
+    prevention:
+      - "Keep branches short-lived"
+      - "Rebase frequently"
+      - "Coordinate large refactors"
+
+# Safety mechanisms
+safety:
+  pre_commit_checks:
+    - "All tests passing"
+    - "No console.log or print statements"
+    - "No TODO comments without issues"
+    - "No secrets in code"
+    - "Code formatted correctly"
+
+  pre_push_checks:
+    - "Commits are logically organized"
+    - "Commit messages follow convention"
+    - "No fixup commits"
+    - "Branch is up to date"
+
+  pre_merge_checks:
+    - "All PR checks passing"
+    - "Code review approved"
+    - "No conflicting changes"
+    - "Backwards compatibility verified"
+    - "Documentation updated"
+
+  emergency_bypass:
+    hotfix_only: true
+    requires_approval: "Immediate lead approval"
+    triggers_alert: true
+    post_incident_review: true
+
+# Metrics
+metrics:
+  track:
+    - average_pr_size
+    - time_to_merge
+    - review_turnaround_time
+    - merge_conflict_frequency
+    - rollback_frequency
+    - commit_message_quality
+
+  success_criteria:
+    pr_size: "< 400 lines changed"
+    time_to_merge: "< 24 hours"
+    conflict_rate: "< 5%"
+    rollback_rate: "< 1%"
+    message_quality: "> 95% compliant"
+
+# Integration with other coordinators
+integrations:
+  quality_coordinator:
+    when: "Before PR merge"
+    action: "Run quality gates"
+    gates: "All must pass before merge"
+
+  planning_coordinator:
+    when: "Planning work"
+    action: "Define branch strategy for project"
+
+  all_coordinators:
+    action: "Use git worktrees for parallel coordinator work"
+
+# Examples
+examples:
+  - description: "Feature branch workflow"
+    input: "Implement user authentication feature"
+    flow:
+      1: "Create feature/authentication branch"
+      2: "Implement with atomic commits"
+      3: "Create PR with description"
+      4: "Address review feedback"
+      5: "Merge to main"
+    commits:
+      - "feat: auth - Add JWT token generation"
+      - "feat: auth - Add token verification middleware"
+      - "test: auth - Add token generation tests"
+      - "docs: auth - Document authentication endpoints"
+
+  - description: "Hotfix workflow"
+    input: "Fix critical production bug"
+    flow:
+      1: "Create hotfix branch from release tag"
+      2: "Implement minimal fix"
+      3: "Test thoroughly"
+      4: "Create emergency PR"
+      5: "Deploy to production"
+      6: "Merge to main"
+    speed: "< 30 minutes from discovery to production"
+
+  - description: "Parallel work with worktrees"
+    input: "Work on feature and hotfix simultaneously"
+    flow:
+      1: "Create feature worktree for new work"
+      2: "Create hotfix worktree for emergency"
+      3: "Work independently on both"
+      4: "Merge hotfix first"
+      5: "Rebase feature on updated main"
+      6: "Merge feature"
+    benefit: "No branch switching, independent testing"
