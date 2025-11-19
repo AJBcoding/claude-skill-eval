@@ -1,0 +1,192 @@
+---
+# Post-Error Hook
+# Triggers: After errors occur (bash failures, test failures, stack traces)
+# Purpose: Activate debug-agent to enforce systematic debugging methodology
+
+name: post-error
+version: "1.0.0"
+enabled: true
+priority: critical
+
+# Hook Metadata
+description: "Trigger debug-agent automatically on errors. Captures error context and enforces 6-step debugging methodology before allowing fixes."
+
+# Trigger Configuration
+trigger:
+  events:
+    - "after:Bash:error"           # Non-zero exit codes
+    - "after:test:failure"         # Test framework failures
+    - "after:build:failure"        # Compilation errors
+    - "after:runtime:error"        # Runtime exceptions
+
+  # Error detection patterns
+  conditions:
+    - type: exit_code
+      pattern: "non-zero"
+      description: "Any command that exits with non-zero status"
+
+    - type: output_pattern
+      pattern: "(Error|Exception|FAILED|Traceback|AssertionError|Fatal)"
+      description: "Error indicators in command output"
+
+    - type: test_framework
+      pattern: "(pytest.*FAILED|npm.*ERR!|jest.*FAIL|PHPUnit.*FAILURES)"
+      description: "Test framework failure patterns"
+
+    - type: severity
+      min_level: "warning"
+      description: "Minimum error severity to trigger hook"
+
+# Agent Configuration
+agent: debug-agent
+agent_mode: guided  # Guide user through 6-step methodology
+
+# Error Context Capture
+context_capture:
+  include:
+    - command: "The exact command that failed"
+    - exit_code: "Command exit code"
+    - stdout: "Standard output (last 100 lines)"
+    - stderr: "Standard error (last 100 lines)"
+    - stack_trace: "Full stack trace if available"
+    - environment: "Relevant environment variables"
+    - file_context: "Files being modified when error occurred"
+    - git_status: "Current git state"
+    - recent_changes: "Last 5 edits/writes before error"
+
+  # Sanitization
+  sanitize:
+    - secrets: true
+    - api_keys: true
+    - passwords: true
+    - tokens: true
+
+# Workflow Steps (6-Step Debug Methodology)
+workflow:
+  methodology: "6-step-debugging"
+  enforce_all_steps: true
+
+  steps:
+    - name: reproduce
+      description: "Establish reliable reproduction steps"
+      required: true
+      output: "Clear reproduction instructions"
+      timeout: 60
+
+    - name: isolate
+      description: "Narrow down the scope of the problem"
+      required: true
+      output: "Minimal reproduction case"
+      timeout: 120
+
+    - name: hypothesis
+      description: "Formulate theories about root cause"
+      required: true
+      output: "Ordered list of potential causes"
+      timeout: 60
+
+    - name: test
+      description: "Design experiments to validate/invalidate hypotheses"
+      required: true
+      output: "Evidence supporting or refuting each hypothesis"
+      timeout: 120
+
+    - name: fix
+      description: "Implement solution for confirmed root cause"
+      required: true
+      output: "Code changes with explanation"
+      timeout: 180
+
+    - name: verify
+      description: "Confirm original error is resolved"
+      required: true
+      output: "Verification evidence (test results, manual testing)"
+      timeout: 60
+
+# Exit Codes
+exit_codes:
+  0: "resolved"          # Bug fixed and verified
+  1: "partial"           # Progress made but not fully resolved
+  2: "blocked"           # External blocker (missing dependency, etc.)
+  3: "needs_help"        # Complex issue requiring user expertise
+  130: "user_cancelled"  # User interrupted debugging
+
+# Bypass Mechanisms
+bypass:
+  # When to skip debug-agent activation
+  conditions:
+    - flag: "--skip-debug"
+      description: "Skip debug methodology with explicit flag"
+
+    - error_type: "expected_failure"
+      description: "Skip for intentional test failures (TDD red phase)"
+
+    - severity: "info"
+      description: "Skip for informational messages"
+
+# Performance Settings
+performance:
+  max_execution_time: 600  # 10 minutes for complex debugging
+  max_iterations: 6        # One per debug step
+  save_session: true
+  session_log: ".claude/logs/debug-sessions.jsonl"
+
+# Feedback Configuration
+feedback:
+  on_trigger: "🔍 Error detected. Activating debug-agent to guide systematic debugging..."
+  on_step_complete: "✓ Step {step_number}/6 complete: {step_name}"
+  on_success: "✅ Bug resolved! All verification tests passed."
+  on_partial: "⚠ Partial progress. Continue debugging in next session."
+  on_error: "❌ Debugging hook failed. Manual intervention required."
+
+# Error Pattern Learning
+learning:
+  enabled: true
+  patterns_file: ".claude/data/error-patterns.json"
+
+  # Capture patterns for future reference
+  capture:
+    - error_type: "Classification of error"
+    - resolution: "How it was resolved"
+    - time_to_resolve: "Duration"
+    - methodology_adherence: "Which steps were followed"
+
+# Integration Settings
+integration:
+  compatible_with_superpowers: true
+  enhances_workflow: true
+  blocks_workflow: true  # Intentionally blocks until methodology is followed
+
+  # Pass error context to debug agent
+  context_injection: true
+
+  # Prevent quick fixes without analysis
+  enforce_methodology: true
+
+# Examples of Hook in Action
+examples:
+  - scenario: "Test failure detected"
+    trigger: "pytest exits with code 1, FAILED tests detected"
+    action: "Capture test output, guide through reproduction, isolation, hypothesis generation"
+    outcome: "Root cause identified (missing validation), fix implemented, tests pass"
+
+  - scenario: "Bash command error"
+    trigger: "npm install fails with dependency conflict"
+    action: "Capture error message, analyze package.json, suggest resolution strategies"
+    outcome: "Dependency versions adjusted, installation succeeds"
+
+  - scenario: "Runtime exception"
+    trigger: "Python script crashes with AttributeError"
+    action: "Capture stack trace, identify line causing error, generate hypotheses (missing attribute, wrong type, etc.)"
+    outcome: "Type mismatch found, validation added, error prevented"
+
+# Quality Gates
+quality_gates:
+  before_marking_resolved:
+    - all_tests_pass: true
+    - error_no_longer_reproduces: true
+    - edge_cases_tested: true
+    - fix_documented: true
+    - regression_test_added: true
+
+---

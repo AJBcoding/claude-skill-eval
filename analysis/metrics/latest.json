@@ -1,0 +1,65 @@
+{
+  "timestamp": "2025-11-19T01:41:17.014657",
+  "summary": {
+    "total_events": 0,
+    "date_range": {
+      "start": "N/A",
+      "end": "N/A"
+    }
+  },
+  "metrics": {
+    "bug_catch_rate": {
+      "name": "Bug Catch Rate",
+      "value": 0.0,
+      "target": 90.0,
+      "unit": "%",
+      "status": "no_data",
+      "trend": null,
+      "data_points": 0
+    },
+    "pattern_adherence": {
+      "name": "Pattern Adherence Rate",
+      "value": 0.0,
+      "target": 90.0,
+      "unit": "%",
+      "status": "no_data",
+      "trend": null,
+      "data_points": 0
+    },
+    "redirection_reduction": {
+      "name": "Redirection Reduction",
+      "value": 0.0,
+      "target": 50.0,
+      "unit": "%",
+      "status": "no_data",
+      "trend": null,
+      "data_points": 0
+    },
+    "debug_methodology": {
+      "name": "Debug Methodology Adherence",
+      "value": 0.0,
+      "target": 95.0,
+      "unit": "%",
+      "status": "no_data",
+      "trend": null,
+      "data_points": 0
+    },
+    "skill_activation": {
+      "name": "Skill Activation Rate",
+      "value": 0.0,
+      "target": 85.0,
+      "unit": "%",
+      "status": "no_data",
+      "trend": null,
+      "data_points": 0
+    }
+  },
+  "agents": {},
+  "quality": {
+    "total_issues": 0,
+    "by_severity": {},
+    "by_category": {},
+    "resolved": 0,
+    "avg_quality_score": 0
+  }
+}

@@ -1,0 +1,13 @@
+# Phase 2 Metrics Data
+# This file stores metrics in JSON Lines format (one JSON object per line)
+# Format: Each line is a valid JSON object representing a metric event
+# See .claude/metrics/tracking.yml for metric definitions
+# See docs/metrics-dashboard.md for visualization
+
+# Example event (commented out - remove # to make valid JSON):
+# {"timestamp":"2025-11-19T10:30:45Z","event_type":"agent_completion","metric_name":"debug_methodology_adherence","agent_name":"debug-agent","session_id":"550e8400-e29b-41d4-a716-446655440000","task_id":"abc123","data":{"steps_completed":["reproduce","isolate","hypothesis","test","fix","verify"],"steps_skipped":[],"bug_resolved":true,"session_duration":1200,"bug_severity":"high","bug_type":"logic"},"metadata":{"user":"developer","branch":"feature/new-api","commit":"a1b2c3d4"}}
+
+# Metrics will be appended here as agents run
+# One event per line
+# No trailing commas
+# Valid JSON on each line

@@ -1,0 +1,49 @@
+---
+name: debug-agent
+description: "Enforce structured 6-step debugging methodology to systematically diagnose and resolve code issues. Prevents ad-hoc debugging approaches that lead to incomplete fixes or new bugs."
+
+# Model Configuration
+model: sonnet  # Claude Sonnet for complex reasoning and hypothesis generation
+
+# Activation Configuration
+activation:
+  keywords:
+    - debug
+    - fix
+    - error
+    - failing
+    - broken
+    - not working
+    - issue
+    - problem
+    - bug
+
+  triggers:
+    # Automatic activation on these conditions
+    - bash_error          # Non-zero exit codes
+    - test_failure        # pytest, npm test failures
+    - stack_trace         # Error stack traces detected
+    - assertion_failure   # Failed assertions
+    - build_failure       # Compilation/build errors
+
+# Tool Permissions
+tools:
+  - Read              # Read code and error logs
+  - Edit              # Implement fixes
+  - Write             # Create test files
+  - Bash              # Run tests, reproduce errors
+  - Grep              # Search for related code
+  - Glob              # Find relevant files
+  - TodoWrite         # Track debugging steps
+
+# Execution Configuration
+execution:
+  mode: interactive     # Requires user confirmation for each step
+  timeout: 600         # 10 minutes for complex debugging
+  max_iterations: 6    # One iteration per debugging step
+
+# Metadata
+color: red            # Red indicates debugging/error handling
+priority: high        # Debug issues are high priority
+version: "1.0.0"
+---

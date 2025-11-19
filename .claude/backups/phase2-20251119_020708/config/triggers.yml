@@ -1,0 +1,769 @@
+---
+# Trigger System Configuration
+# Maps keywords, tool events, and conditions to specialized agents
+# Version: 1.0.0
+# Created: 2025-11-19
+
+# =============================================================================
+# KEYWORD-BASED TRIGGERS
+# =============================================================================
+# Detect keywords in user input and activate appropriate agents
+
+keyword_triggers:
+  # Debug Agent - Highest Priority (P1)
+  # Activates on debugging and error-related keywords
+  - name: debug-keyword-trigger
+    priority: high
+    agent: debug-agent
+    description: "Activate debug-agent for systematic debugging methodology"
+
+    keywords:
+      - debug
+      - fix
+      - error
+      - failing
+      - broken
+      - "not working"
+      - issue
+      - problem
+      - bug
+      - crash
+      - exception
+      - traceback
+      - stack trace
+
+    activation_mode: immediate
+    bypass_if_agent_active: false  # Debug always takes priority
+
+    # Context requirements for activation
+    context:
+      min_keyword_confidence: 0.8  # How certain must we be this is a debug request
+      require_error_evidence: false  # Keyword alone is sufficient
+
+    examples:
+      - input: "debug this test failure"
+        matches: true
+        keyword: "debug"
+      - input: "fix the broken authentication"
+        matches: true
+        keyword: "fix, broken"
+      - input: "the login is not working"
+        matches: true
+        keyword: "not working"
+
+  # Consistency Agent - Medium Priority (P2)
+  # Activates on implementation and creation keywords
+  - name: consistency-keyword-trigger
+    priority: medium
+    agent: consistency-agent
+    description: "Activate consistency-agent for pattern matching and reuse"
+
+    keywords:
+      - implement
+      - add
+      - create
+      - build
+      - write
+      - develop
+      - make
+      - generate
+      - "new feature"
+      - "add feature"
+      - "create component"
+      - refactor
+
+    activation_mode: pre-execution  # Before Edit/Write tools
+    bypass_if_agent_active: true  # Don't interrupt other agents
+
+    context:
+      min_keyword_confidence: 0.7
+      require_code_context: true  # Must be creating/modifying code
+
+    examples:
+      - input: "implement user authentication"
+        matches: true
+        keyword: "implement"
+      - input: "add a new API endpoint"
+        matches: true
+        keyword: "add"
+      - input: "create a login component"
+        matches: true
+        keyword: "create"
+
+  # Quality Agent - Low-Medium Priority (P3)
+  # Activates on completion and review keywords
+  - name: quality-keyword-trigger
+    priority: medium
+    agent: quality-agent
+    description: "Activate quality-agent for post-implementation review"
+
+    keywords:
+      - done
+      - complete
+      - finished
+      - ready
+      - commit
+      - ship
+      - deploy
+      - merge
+      - review
+      - "looks good"
+      - "ready to commit"
+      - "ready to deploy"
+
+    activation_mode: post-execution  # After Edit/Write tools
+    bypass_if_agent_active: true
+
+    context:
+      min_keyword_confidence: 0.75
+      require_changes_present: true  # Must have uncommitted changes
+
+    examples:
+      - input: "done with the feature, ready to commit"
+        matches: true
+        keyword: "done, ready, commit"
+      - input: "implementation complete"
+        matches: true
+        keyword: "complete"
+      - input: "this looks good, let's merge"
+        matches: true
+        keyword: "looks good, merge"
+
+# =============================================================================
+# TOOL-BASED TRIGGERS
+# =============================================================================
+# Detect tool events and activate appropriate agents
+
+tool_triggers:
+  # Bash Error Trigger -> Debug Agent
+  - name: bash-error-trigger
+    priority: critical
+    agent: debug-agent
+    description: "Activate debug-agent on non-zero exit codes from Bash commands"
+
+    tool: Bash
+    condition:
+      type: exit_code
+      operator: "!="
+      value: 0
+
+    activation_mode: immediate
+    bypass_if_agent_active: false  # Always activate on errors
+
+    # Additional conditions
+    filters:
+      # Ignore expected errors (exit code checks)
+      exclude_commands:
+        - "test -f"
+        - "which"
+        - "command -v"
+        - "git diff --exit-code"  # Intentional exit code check
+
+      # Minimum severity
+      min_severity: warning
+
+    # Context capture
+    context_capture:
+      - command
+      - exit_code
+      - stdout
+      - stderr
+      - working_directory
+
+    examples:
+      - tool_call: "Bash: npm install"
+        exit_code: 1
+        result: "Activates debug-agent with error context"
+      - tool_call: "Bash: pytest tests/"
+        exit_code: 1
+        result: "Activates debug-agent for test failures"
+
+  # Test Failure Trigger -> Debug Agent
+  - name: test-failure-trigger
+    priority: critical
+    agent: debug-agent
+    description: "Activate debug-agent on test framework failures"
+
+    tool: Bash
+    condition:
+      type: output_pattern
+      pattern: "(FAILED|FAIL|Error|Exception|AssertionError)"
+
+    activation_mode: immediate
+    bypass_if_agent_active: false
+
+    # Test framework detection
+    test_frameworks:
+      - pytest: "FAILED|ERROR|===.*failed"
+      - jest: "FAIL|Tests.*failed"
+      - mocha: "failing"
+      - junit: "FAILURES|ERRORS"
+      - phpunit: "FAILURES|ERRORS"
+      - go_test: "FAIL"
+
+    examples:
+      - output: "===== 3 failed, 5 passed in 2.34s ====="
+        matches: true
+        framework: pytest
+      - output: "npm ERR! Test failed"
+        matches: true
+        framework: jest
+
+  # Stack Trace Detection -> Debug Agent
+  - name: stack-trace-trigger
+    priority: critical
+    agent: debug-agent
+    description: "Activate debug-agent when stack traces detected in output"
+
+    tool: Bash
+    condition:
+      type: output_pattern
+      pattern: "(Traceback|Stack trace|at \\w+\\.\\w+:\\d+|\\s+File .*, line \\d+)"
+
+    activation_mode: immediate
+    bypass_if_agent_active: false
+
+    examples:
+      - output: "Traceback (most recent call last):"
+        matches: true
+      - output: "  at Object.<anonymous> (app.js:42:15)"
+        matches: true
+
+  # Multiple Edit Operations -> Quality Agent
+  - name: multiple-edit-trigger
+    priority: medium
+    agent: quality-agent
+    description: "Activate quality-agent after multiple Edit operations"
+
+    tool: Edit
+    condition:
+      type: operation_count
+      operator: ">="
+      value: 3
+      timeframe: "session"  # Within current session
+
+    activation_mode: post-execution
+    bypass_if_agent_active: true
+
+    # Only trigger if changes are significant
+    filters:
+      min_lines_changed: 20
+      file_types: ["js", "ts", "tsx", "jsx", "py", "go", "java", "rb", "php", "rs", "swift", "c", "cpp"]
+
+    examples:
+      - scenario: "User makes 3+ Edit operations, modifying 50+ lines"
+        result: "Activates quality-agent for comprehensive review"
+
+  # Pre-Write Trigger -> Consistency Agent
+  - name: pre-write-trigger
+    priority: medium
+    agent: consistency-agent
+    description: "Activate consistency-agent before Write operations for new files"
+
+    tool: Write
+    condition:
+      type: before_execution
+      file_exists: false
+
+    activation_mode: pre-execution
+    bypass_if_agent_active: true
+
+    # Only for code files
+    filters:
+      file_types: ["js", "ts", "tsx", "jsx", "py", "go", "java", "rb", "php", "rs", "swift", "c", "cpp", "h", "hpp"]
+      min_lines: 10  # Skip trivial files
+      exclude_patterns:
+        - "**/test/**"
+        - "**/*.test.*"
+        - "**/*.spec.*"
+        - "**/node_modules/**"
+
+    examples:
+      - scenario: "User writes new React component UserProfile.tsx"
+        result: "Activates consistency-agent to find similar components"
+
+  # Pre-Edit Trigger -> Consistency Agent
+  - name: pre-edit-trigger
+    priority: medium
+    agent: consistency-agent
+    description: "Activate consistency-agent before Edit operations for significant changes"
+
+    tool: Edit
+    condition:
+      type: before_execution
+      operation_type: "create_or_add"
+
+    activation_mode: pre-execution
+    bypass_if_agent_active: true
+
+    # Detect creation/addition patterns in Edit
+    patterns:
+      - "add.*function"
+      - "add.*method"
+      - "create.*class"
+      - "implement.*interface"
+      - "add.*endpoint"
+      - "new.*component"
+
+    filters:
+      min_lines_added: 10
+      file_types: ["js", "ts", "tsx", "jsx", "py", "go", "java", "rb", "php", "rs", "swift"]
+
+    examples:
+      - scenario: "User edits api.ts to add new endpoint (20+ lines)"
+        result: "Activates consistency-agent to check existing endpoint patterns"
+
+  # Post-Write Trigger -> Quality Agent
+  - name: post-write-trigger
+    priority: medium
+    agent: quality-agent
+    description: "Activate quality-agent after Write operations complete"
+
+    tool: Write
+    condition:
+      type: after_execution
+      success: true
+
+    activation_mode: post-execution
+    bypass_if_agent_active: true
+
+    # Only for significant code files
+    filters:
+      min_lines: 20
+      file_types: ["js", "ts", "tsx", "jsx", "py", "go", "java", "rb", "php", "rs", "swift", "c", "cpp"]
+      exclude_patterns:
+        - "**/*.md"
+        - "**/*.txt"
+        - "**/*.json"
+        - "**/README.*"
+
+    examples:
+      - scenario: "User writes new authentication.py file (100 lines)"
+        result: "Activates quality-agent for comprehensive review"
+
+  # Git Commit Trigger -> Quality Agent
+  - name: pre-commit-trigger
+    priority: high
+    agent: quality-agent
+    description: "Activate quality-agent before git commit operations"
+
+    tool: Bash
+    condition:
+      type: command_pattern
+      pattern: "git\\s+commit"
+
+    activation_mode: pre-execution
+    bypass_if_agent_active: false  # Always check before commit
+
+    # Check for staged changes
+    filters:
+      require_staged_changes: true
+
+    examples:
+      - command: "git commit -m 'Add user authentication'"
+        result: "Activates quality-agent to review all staged changes"
+
+# =============================================================================
+# FALLBACK PATTERNS
+# =============================================================================
+# Patterns to use when no explicit triggers match
+
+fallback:
+  # If user mentions implementation but no agent triggered
+  - pattern: "(implement|add|create|build).*feature"
+    agent: consistency-agent
+    priority: low
+    description: "Suggest consistency check for implementation tasks"
+
+  # If user shows frustration (potential debugging needed)
+  - pattern: "(why|confused|don't understand|doesn't make sense)"
+    agent: debug-agent
+    priority: low
+    description: "Offer debugging assistance for confusion"
+
+  # If user asks about quality/completeness
+  - pattern: "(how|what).*(?:looks?|seems?|ready|good)"
+    agent: quality-agent
+    priority: low
+    description: "Offer quality review when user seeks validation"
+
+  # Default: No agent activation
+  - pattern: ".*"
+    agent: null
+    priority: lowest
+    description: "No automatic agent activation for general queries"
+
+# =============================================================================
+# PRECEDENCE RULES
+# =============================================================================
+# Define priority ordering when multiple triggers match
+
+precedence:
+  # Priority levels (highest to lowest)
+  levels:
+    - critical   # P0: Critical errors, must handle immediately
+    - high       # P1: Important issues, high priority
+    - medium     # P2: Normal operations
+    - low        # P3: Nice-to-have, suggestions
+    - lowest     # P4: Default/fallback
+
+  # Agent priority order when multiple match at same level
+  agent_order:
+    - debug-agent        # Highest: Correctness and errors first
+    - quality-agent      # Second: Quality and security
+    - consistency-agent  # Third: Pattern consistency
+
+  # Conflict resolution strategies
+  resolution_strategies:
+    # Multiple triggers at same priority
+    same_priority:
+      strategy: agent_order
+      description: "Use agent_order to break ties"
+
+    # Multiple triggers at different priorities
+    different_priority:
+      strategy: highest_priority
+      description: "Always choose highest priority trigger"
+
+    # User explicitly requests different agent
+    explicit_user_request:
+      strategy: user_override
+      description: "User's explicit request overrides automatic triggers"
+      priority: override_all
+
+  # Example precedence scenarios
+  examples:
+    - scenario: "User says 'implement login feature' (consistency) AND bash command fails (debug)"
+      triggers:
+        - consistency-keyword-trigger: medium
+        - bash-error-trigger: critical
+      result: "debug-agent activates (critical > medium)"
+
+    - scenario: "User says 'done, ready to commit' (quality) AND multiple edits made (quality)"
+      triggers:
+        - quality-keyword-trigger: medium
+        - multiple-edit-trigger: medium
+      result: "quality-agent activates once (duplicate triggers merged)"
+
+    - scenario: "User explicitly requests 'use debug-agent to analyze this'"
+      triggers:
+        - explicit_user_request: override_all
+        - any_other_triggers: any
+      result: "debug-agent activates (explicit override)"
+
+# =============================================================================
+# EDGE CASE HANDLING
+# =============================================================================
+# Special cases and exception handling
+
+edge_cases:
+  # Multiple agents triggered simultaneously
+  multiple_simultaneous:
+    strategy: sequential_execution
+    order: precedence.agent_order
+    description: "Execute agents sequentially in priority order"
+    max_agents_per_request: 2
+
+    examples:
+      - scenario: "Bash error during implementation"
+        agents: [debug-agent, consistency-agent]
+        execution: "Run debug-agent first, then consistency-agent after fix"
+
+  # Agent already active (prevent recursion)
+  agent_already_active:
+    strategy: queue_or_skip
+    description: "Queue trigger if agent not active, skip if same agent"
+
+    rules:
+      - if: "same_agent_active"
+        action: skip
+        reason: "Prevent recursion"
+
+      - if: "different_agent_active"
+        action: queue
+        reason: "Allow sequential agent activation"
+        max_queue_depth: 3
+
+    examples:
+      - scenario: "Debug-agent active, another error occurs"
+        action: "Skip trigger (already debugging)"
+
+      - scenario: "Consistency-agent active, error occurs"
+        action: "Queue debug-agent to run after consistency completes"
+
+  # User explicitly requests different agent
+  explicit_override:
+    strategy: honor_user_request
+    description: "User's explicit agent request overrides all automatic triggers"
+
+    patterns:
+      - "use {agent-name}"
+      - "run {agent-name}"
+      - "activate {agent-name}"
+      - "{agent-name} please"
+
+    examples:
+      - input: "use consistency-agent for this"
+        result: "Activate consistency-agent regardless of other triggers"
+
+  # Trigger during agent execution (recursion prevention)
+  trigger_during_execution:
+    strategy: defer_or_ignore
+    description: "Prevent recursive agent activation"
+
+    rules:
+      - if: "same_agent_triggered_while_active"
+        action: ignore
+        log: true
+
+      - if: "different_agent_triggered_while_active"
+        action: defer
+        execute_after_completion: true
+
+    examples:
+      - scenario: "Debug-agent makes Edit, triggers consistency-agent"
+        action: "Defer consistency-agent until debug-agent completes"
+
+  # Bypass mechanisms explicitly invoked
+  bypass_invoked:
+    strategy: respect_bypass
+    description: "Honor explicit bypass flags and conditions"
+
+    bypass_methods:
+      - flag: "--skip-triggers"
+        effect: "Disable all automatic triggers"
+
+      - flag: "--skip-agent={agent-name}"
+        effect: "Disable specific agent triggers"
+
+      - env_var: "CLAUDE_SKIP_AGENTS=true"
+        effect: "Disable all agent activations"
+
+      - file_comment: "# @skip-triggers"
+        effect: "Skip triggers for this specific file"
+
+    examples:
+      - command: "Edit file.py --skip-triggers"
+        result: "No agents activated despite triggers matching"
+
+  # Conflicting agent recommendations
+  conflicting_recommendations:
+    strategy: highest_priority_wins
+    description: "When agents suggest conflicting actions, use priority order"
+
+    examples:
+      - scenario: "Consistency suggests pattern A, Quality flags pattern A as security issue"
+        resolution: "Quality-agent wins (security > consistency)"
+        action: "Block pattern A, suggest alternative"
+
+  # Low-confidence triggers
+  low_confidence:
+    strategy: suggest_not_enforce
+    threshold: 0.6
+    description: "For triggers below confidence threshold, suggest rather than auto-activate"
+
+    examples:
+      - keyword: "make"
+        confidence: 0.5
+        action: "Suggest: 'Would you like me to check for similar patterns?'"
+
+  # Rapid trigger succession
+  rapid_succession:
+    strategy: debounce
+    window: 5  # seconds
+    description: "Prevent trigger spam from rapid tool calls"
+
+    examples:
+      - scenario: "User runs 5 bash commands in 3 seconds, 2 fail"
+        action: "Batch error triggers, activate debug-agent once with all contexts"
+
+# =============================================================================
+# BYPASS MECHANISMS
+# =============================================================================
+# Ways to skip or override trigger system
+
+bypass:
+  # Command-line flags
+  flags:
+    - name: "--skip-triggers"
+      description: "Disable all automatic triggers"
+      scope: session
+
+    - name: "--skip-agent={agent-name}"
+      description: "Disable specific agent (debug-agent, consistency-agent, quality-agent)"
+      scope: session
+
+    - name: "--no-hooks"
+      description: "Disable all hooks (includes triggers)"
+      scope: session
+
+  # Environment variables
+  environment:
+    - name: CLAUDE_SKIP_AGENTS
+      value: "true"
+      description: "Disable all agent activations"
+      scope: global
+
+    - name: CLAUDE_SKIP_TRIGGERS
+      value: "true"
+      description: "Disable automatic triggers (manual activation still works)"
+      scope: global
+
+    - name: CLAUDE_AGENT_MODE
+      value: "manual"
+      description: "Only activate agents when explicitly requested"
+      scope: global
+
+  # File-level bypasses
+  file_annotations:
+    - pattern: "# @skip-triggers"
+      description: "Skip all triggers for this file"
+      location: "First line of file or in file header"
+
+    - pattern: "# @skip-agent:debug"
+      description: "Skip specific agent for this file"
+      location: "First line of file or in file header"
+
+  # Directory-level bypasses
+  directory_patterns:
+    - pattern: "**/test/**"
+      description: "Relaxed triggers for test files"
+
+    - pattern: "**/docs/**"
+      description: "Skip code-related triggers for documentation"
+
+    - pattern: "**/node_modules/**"
+      description: "Skip all triggers for dependencies"
+
+    - pattern: "**/vendor/**"
+      description: "Skip all triggers for vendor code"
+
+  # Conditional bypasses
+  conditions:
+    - condition: "file_type == 'markdown'"
+      bypass: ["consistency-agent", "quality-agent"]
+      allow: ["debug-agent"]  # Still help with doc generation errors
+
+    - condition: "user_role == 'senior'"
+      bypass_with_confirmation: true
+      description: "Senior users can bypass with single confirmation"
+
+    - condition: "change_size < 5 lines"
+      bypass: ["consistency-agent", "quality-agent"]
+      allow: ["debug-agent"]
+      description: "Skip for trivial changes"
+
+# =============================================================================
+# INTEGRATION WITH HOOKS
+# =============================================================================
+# How triggers integrate with the hook system
+
+integration:
+  # Relationship with hooks
+  hook_integration:
+    description: "Triggers and hooks work together - triggers activate agents, hooks define workflows"
+
+    coordination:
+      - hook: pre-implementation
+        trigger: pre-write-trigger, pre-edit-trigger
+        agent: consistency-agent
+        description: "Pre-implementation hook uses consistency triggers"
+
+      - hook: post-implementation
+        trigger: post-write-trigger, multiple-edit-trigger, pre-commit-trigger
+        agent: quality-agent
+        description: "Post-implementation hook uses quality triggers"
+
+      - hook: post-error
+        trigger: bash-error-trigger, test-failure-trigger, stack-trace-trigger
+        agent: debug-agent
+        description: "Post-error hook uses debug triggers"
+
+  # Trigger-Hook workflow
+  workflow:
+    - step: "User action or tool call occurs"
+    - step: "Trigger system evaluates conditions"
+    - step: "If triggered, check hook configuration"
+    - step: "Hook determines agent workflow and context"
+    - step: "Agent executes with hook-defined parameters"
+    - step: "Agent returns results to user"
+
+  # Hook can override trigger settings
+  hook_override:
+    enabled: true
+    description: "Hook configuration can override trigger defaults"
+
+    examples:
+      - trigger: pre-write-trigger
+        hook: pre-implementation
+        override: agent_mode = interactive (from hook)
+
+      - trigger: bash-error-trigger
+        hook: post-error
+        override: enforce_all_steps = true (from hook)
+
+# =============================================================================
+# MONITORING AND LOGGING
+# =============================================================================
+# Track trigger activations for analysis and improvement
+
+monitoring:
+  enabled: true
+  log_file: ".claude/logs/trigger-events.jsonl"
+
+  # What to log
+  log_events:
+    - trigger_evaluated
+    - trigger_activated
+    - trigger_skipped
+    - trigger_bypassed
+    - agent_activated
+    - agent_completed
+    - trigger_error
+
+  # Metrics to track
+  metrics:
+    - trigger_activation_rate: "How often each trigger activates"
+    - agent_activation_frequency: "How often each agent is called"
+    - false_positive_rate: "Triggers that activated but weren't useful"
+    - bypass_usage: "How often bypasses are used"
+    - avg_execution_time: "Time from trigger to agent completion"
+
+  # Analytics
+  analytics:
+    enabled: true
+    output_file: ".claude/metrics/trigger-analytics.json"
+
+    reports:
+      - most_common_triggers
+      - agent_effectiveness_scores
+      - trigger_precision_recall
+      - user_satisfaction_ratings
+
+# =============================================================================
+# CONFIGURATION METADATA
+# =============================================================================
+
+metadata:
+  version: "1.0.0"
+  created: "2025-11-19"
+  last_updated: "2025-11-19"
+  schema_version: "1.0"
+
+  authors:
+    - "Claude Code Team"
+
+  changelog:
+    - version: "1.0.0"
+      date: "2025-11-19"
+      changes:
+        - "Initial trigger system implementation"
+        - "Keyword-based triggers for all three agents"
+        - "Tool-based triggers for Bash, Edit, Write operations"
+        - "Precedence rules and conflict resolution"
+        - "Edge case handling and bypass mechanisms"
+        - "Integration with hook system"
+
+# =============================================================================
+# END OF CONFIGURATION
+# =============================================================================

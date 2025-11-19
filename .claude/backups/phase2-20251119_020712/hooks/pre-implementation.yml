@@ -1,0 +1,121 @@
+---
+# Pre-Implementation Hook
+# Triggers: Before Edit/Write operations to ensure pattern consistency
+# Purpose: Activate consistency-agent to check for similar patterns before implementation
+
+name: pre-implementation
+version: "1.0.0"
+enabled: true
+priority: high
+
+# Hook Metadata
+description: "Check for applicable skills and patterns before any implementation. Triggers consistency-agent to ensure architectural coherence."
+
+# Trigger Configuration
+trigger:
+  events:
+    - "before:Edit"
+    - "before:Write"
+    - "before:MultiEdit"
+
+  # Additional conditions that must be met
+  conditions:
+    - type: file_type
+      pattern: "\\.(js|ts|tsx|jsx|py|go|java|rb|php|rs|swift)$"
+      description: "Only trigger for code files"
+
+    - type: operation_type
+      pattern: "(create|add|implement|build|generate)"
+      description: "Only trigger for new implementation, not minor edits"
+
+    - type: file_size
+      min_lines: 5
+      description: "Skip for trivial changes (< 5 lines)"
+
+# Agent Configuration
+agent: consistency-agent
+agent_mode: interactive  # Allow user to accept/reject pattern suggestions
+
+# Workflow Steps
+workflow:
+  steps:
+    - name: identify_task_type
+      description: "Classify the implementation task"
+      timeout: 5
+
+    - name: search_similar_patterns
+      description: "Find similar implementations in codebase"
+      timeout: 10
+      tools:
+        - Grep
+        - Glob
+        - Read
+
+    - name: analyze_patterns
+      description: "Extract common patterns and conventions"
+      timeout: 5
+
+    - name: suggest_reuse
+      description: "Present matched patterns to user"
+      timeout: 5
+      requires_approval: true
+
+# Exit Codes
+exit_codes:
+  0: "continue"          # Pattern found and applied, or user chose to proceed
+  1: "warning"           # No similar patterns found, proceed with caution
+  2: "block"             # User declined to proceed after reviewing patterns
+  130: "user_cancelled"  # User interrupted the hook
+
+# Bypass Mechanisms
+bypass:
+  # Allow bypass for these scenarios
+  conditions:
+    - flag: "--skip-consistency-check"
+      description: "Skip this hook with explicit flag"
+
+    - env_var: "CLAUDE_SKIP_HOOKS"
+      value: "true"
+      description: "Skip all hooks when environment variable is set"
+
+    - file_pattern: "**/test/**"
+      description: "Skip for test files (less strict patterns)"
+
+# Performance Settings
+performance:
+  max_execution_time: 30  # seconds
+  max_file_reads: 10
+  cache_results: true
+  cache_ttl: 300  # 5 minutes
+
+# Feedback Configuration
+feedback:
+  on_success: "✓ Pattern consistency verified. Similar implementations found and aligned."
+  on_warning: "⚠ No similar patterns found. Consider establishing a new pattern carefully."
+  on_block: "✗ Pattern consistency check declined. Please review suggested patterns before proceeding."
+  on_error: "⚠ Hook execution failed. Proceeding without consistency check."
+
+# Integration with obra superpowers
+integration:
+  compatible_with_superpowers: true
+  enhances_workflow: true
+  blocks_workflow: false
+
+# Examples of Hook in Action
+examples:
+  - scenario: "Creating new API endpoint"
+    trigger: "before:Write on src/api/users.ts"
+    action: "Search for existing API endpoints, suggest following REST conventions"
+    outcome: "User accepts pattern, new endpoint follows existing structure"
+
+  - scenario: "Adding React component"
+    trigger: "before:Write on components/UserProfile.tsx"
+    action: "Find similar components, suggest TypeScript + functional component pattern"
+    outcome: "Component created with consistent props interface and styling approach"
+
+  - scenario: "Implementing database model"
+    trigger: "before:Edit on models/Product.js"
+    action: "Analyze existing models, ensure Sequelize patterns, timestamp fields, validations"
+    outcome: "New model follows established conventions"
+
+---
