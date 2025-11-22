@@ -464,6 +464,32 @@ Configuration Files (.claude/coordinators/):
 
 ---
 
+## Related Documentation - MCP Integration
+
+### Priority 1 MCP Implementation (2025-11-22)
+
+**New:** Complete implementation plan for Context7, PostgreSQL, and Playwright MCPs
+
+**Quick Start:**
+- `MCP_INTEGRATION_QUICK_START.md` - 30-minute setup guide
+
+**Full Design:**
+- `plans/2025-11-22-priority1-mcp-integration-design.md` - 10-day implementation plan
+- Lean-first, disabled-by-default approach
+- Hybrid integration (direct tools + smart agents)
+- Discovery-driven workflow patterns
+
+**Process Documentation:**
+- `SESSION_2025-11-22_mcp-implementation-design.md` - Session summary and decisions
+- `BRAINSTORMING_LESSONS_LEARNED.md` - Brainstorming process insights
+
+**Analysis Foundation:**
+- `FRAMEWORK_MCP_ANALYSIS_AND_STRATEGY.md` - Framework comparison and MCP analysis
+
+**Status:** Implementation-ready design, copied to Python419 repository for execution
+
+---
+
 ## Updates & Maintenance
 
 ### Where to Find Latest

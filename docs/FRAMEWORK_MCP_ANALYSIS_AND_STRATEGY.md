@@ -1021,7 +1021,26 @@ Is the task exploratory? (searching, locating, browsing)
 
 ---
 
+## Implementation Design
+
+**UPDATE (2025-11-22):** A complete implementation plan for Priority 1 MCPs has been created based on this analysis.
+
+**See:** `docs/plans/2025-11-22-priority1-mcp-integration-design.md`
+
+**Key decisions from brainstorming session:**
+- **Approach:** Parallel Foundation + Sequential Intelligence (10-day plan)
+- **Strategy:** Lean-first, disabled-by-default, per-project enabling
+- **Integration:** Hybrid (direct MCP tools + smart agents for complex workflows)
+- **Workflow:** Discovery-driven patterns based on actual codebase analysis
+- **Deployment:** All three MCPs at once (Context7, PostgreSQL, Playwright)
+
+**Session details:** `docs/SESSION_2025-11-22_mcp-implementation-design.md`
+
+---
+
 **Document Version:** 1.0
 **Date:** 2025-11-19
 **Status:** Ready for Phase 2 Implementation
 **Next Review:** After Week 3 of Phase 2 (MCP Integration Complete)
+
+**UPDATE:** Implementation design completed 2025-11-22
